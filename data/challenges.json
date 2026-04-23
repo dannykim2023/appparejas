@@ -1,0 +1,602 @@
+[
+    {
+        "id": 1,
+        "type": "truth",
+        "level": 1,
+        "text": "¿Cuál fue el primer pensamiento que tuviste al verme por primera vez?"
+    },
+    {
+        "id": 2,
+        "type": "truth",
+        "level": 1,
+        "text": "¿Qué es lo que más te gusta de nuestra relación?"
+    },
+    {
+        "id": 3,
+        "type": "truth",
+        "level": 1,
+        "text": "¿Cuál es tu recuerdo favorito conmigo?"
+    },
+    {
+        "id": 4,
+        "type": "truth",
+        "level": 1,
+        "text": "¿Hay algo que hayas hecho y que nunca me hayas dicho?"
+    },
+    {
+        "id": 5,
+        "type": "truth",
+        "level": 1,
+        "text": "¿Qué es lo que más extrañas cuando no estamos juntos?"
+    },
+    {
+        "id": 6,
+        "type": "truth",
+        "level": 1,
+        "text": "¿Cuál fue el momento en que te enamoraste de mí de verdad?"
+    },
+    {
+        "id": 7,
+        "type": "truth",
+        "level": 1,
+        "text": "¿Qué ha sido lo más difícil de nuestra relación?"
+    },
+    {
+        "id": 8,
+        "type": "truth",
+        "level": 1,
+        "text": "¿Cuál es la cosa más linda que has pensado de mí y nunca me dijiste?"
+    },
+    {
+        "id": 9,
+        "type": "truth",
+        "level": 1,
+        "text": "¿Qué sueño tienes que me incluya a mí?"
+    },
+    {
+        "id": 10,
+        "type": "truth",
+        "level": 1,
+        "text": "¿Hay algo que quisieras cambiar de cómo empezamos?"
+    },
+    {
+        "id": 11,
+        "type": "dare",
+        "level": 1,
+        "text": "Mándame una foto de tu lugar favorito en casa ahora mismo."
+    },
+    {
+        "id": 12,
+        "type": "dare",
+        "level": 1,
+        "text": "Escríbeme 3 cosas que amas de mí en este momento."
+    },
+    {
+        "id": 13,
+        "type": "dare",
+        "level": 1,
+        "text": "Ponle a la siguiente canción que escuches el nombre de los dos y cuéntame cuál fue."
+    },
+    {
+        "id": 14,
+        "type": "dare",
+        "level": 1,
+        "text": "Mándame un audio diciéndome algo que nunca me has dicho en voz alta."
+    },
+    {
+        "id": 15,
+        "type": "dare",
+        "level": 1,
+        "text": "Dibuja algo que represente lo que sientes por mí (no importa que sea feo) y mándame una foto."
+    },
+    {
+        "id": 16,
+        "type": "dare",
+        "level": 1,
+        "text": "Escríbeme un poema de al menos 4 líneas sobre nosotros, ahora mismo."
+    },
+    {
+        "id": 17,
+        "type": "dare",
+        "level": 1,
+        "text": "Mándame una selfie con tu expresión favorita."
+    },
+    {
+        "id": 18,
+        "type": "dare",
+        "level": 1,
+        "text": "Cuéntame un secreto que nunca le hayas contado a nadie, sólo a mí."
+    },
+    {
+        "id": 19,
+        "type": "dare",
+        "level": 1,
+        "text": "Escríbeme cómo se llamarían nuestros hijos si pudieras elegir."
+    },
+    {
+        "id": 20,
+        "type": "dare",
+        "level": 1,
+        "text": "Describe cómo sería nuestra primera casa juntos con tanto detalle como puedas."
+    },
+    {
+        "id": 21,
+        "type": "truth",
+        "level": 2,
+        "text": "¿Qué parte de mi cuerpo es la que más te gusta aunque no me lo hayas dicho?"
+    },
+    {
+        "id": 22,
+        "type": "truth",
+        "level": 2,
+        "text": "¿Qué pensaste la primera vez que me besaste?"
+    },
+    {
+        "id": 23,
+        "type": "truth",
+        "level": 2,
+        "text": "¿Cuál es la cosa más atrevida que has querido pedirme y no te has atrevido?"
+    },
+    {
+        "id": 24,
+        "type": "truth",
+        "level": 2,
+        "text": "¿Hay algún lugar donde quieras que te bese que no te haya besado todavía?"
+    },
+    {
+        "id": 25,
+        "type": "truth",
+        "level": 2,
+        "text": "¿Qué te excita más: mis palabras, mis manos o cómo te miro?"
+    },
+    {
+        "id": 26,
+        "type": "truth",
+        "level": 2,
+        "text": "¿Cuándo fue el momento más difícil de contenerte conmigo?"
+    },
+    {
+        "id": 27,
+        "type": "truth",
+        "level": 2,
+        "text": "¿Hay algo que te guste de cómo te toco que nunca me hayas dicho?"
+    },
+    {
+        "id": 28,
+        "type": "truth",
+        "level": 2,
+        "text": "¿Qué fantasía tienes conmigo que todavía no se ha hecho realidad?"
+    },
+    {
+        "id": 29,
+        "type": "truth",
+        "level": 2,
+        "text": "¿Cuál ha sido el mensaje más atrevido que has pensado en mandarme y no enviaste?"
+    },
+    {
+        "id": 30,
+        "type": "truth",
+        "level": 2,
+        "text": "¿Qué preferirías: una noche salvaje o una noche súper lenta y sensual?"
+    },
+    {
+        "id": 31,
+        "type": "dare",
+        "level": 2,
+        "text": "Mándame una foto tuya con la ropa más cómoda (y provocativa) que tengas puesta ahora."
+    },
+    {
+        "id": 32,
+        "type": "dare",
+        "level": 2,
+        "text": "Graba un audio de 30 segundos diciéndome exactamente lo que quieres que te haga la próxima vez que nos veamos."
+    },
+    {
+        "id": 33,
+        "type": "dare",
+        "level": 2,
+        "text": "Dime en detalle cómo te gustaría que empezara nuestra noche perfecta, paso a paso."
+    },
+    {
+        "id": 34,
+        "type": "dare",
+        "level": 2,
+        "text": "Mándame una selfie tuya con una expresión que me haga volver loco/a."
+    },
+    {
+        "id": 35,
+        "type": "dare",
+        "level": 2,
+        "text": "Cuéntame un sueño que hayas tenido conmigo, aunque sea vergonzoso."
+    },
+    {
+        "id": 36,
+        "type": "dare",
+        "level": 2,
+        "text": "Escríbeme exactamente qué te gustaría hacerme si estuvieras aquí ahora mismo."
+    },
+    {
+        "id": 37,
+        "type": "dare",
+        "level": 2,
+        "text": "Mándame un audio susurrado diciéndome algo que solo yo debo saber."
+    },
+    {
+        "id": 38,
+        "type": "dare",
+        "level": 2,
+        "text": "Dime el nombre de ese lugar de tu cuerpo donde si te toco sabes que pierdes el control."
+    },
+    {
+        "id": 39,
+        "type": "dare",
+        "level": 2,
+        "text": "Escríbeme cómo te gustaría que te seduzca la próxima vez que nos veamos, en al menos 5 detalles."
+    },
+    {
+        "id": 40,
+        "type": "dare",
+        "level": 2,
+        "text": "Mándame una foto de algo que me hayas comprado, pensado o visto y que me recuerde a ti hoy."
+    },
+    {
+        "id": 41,
+        "type": "truth",
+        "level": 3,
+        "text": "¿Cuál es tu fantasía más atrevida conmigo que nunca has tenido el valor de decirme?"
+    },
+    {
+        "id": 42,
+        "type": "truth",
+        "level": 3,
+        "text": "¿Dónde exactamente quieres que te toque la próxima vez que nos veamos?"
+    },
+    {
+        "id": 43,
+        "type": "truth",
+        "level": 3,
+        "text": "¿Qué situación entre nosotros te tiene pensando en las noches cuando no puedes dormir?"
+    },
+    {
+        "id": 44,
+        "type": "truth",
+        "level": 3,
+        "text": "¿Cuántas veces has pensado en mí de manera inapropiada esta semana?"
+    },
+    {
+        "id": 45,
+        "type": "truth",
+        "level": 3,
+        "text": "¿Qué es lo más hot que me pedirías si supieras que te diría que sí a todo?"
+    },
+    {
+        "id": 46,
+        "type": "truth",
+        "level": 3,
+        "text": "¿Cuál fue la vez que más te costó contenerte cuando estábamos juntos?"
+    },
+    {
+        "id": 47,
+        "type": "truth",
+        "level": 3,
+        "text": "¿Prefieres dominar o ser dominado/a? ¿Y cuánto?"
+    },
+    {
+        "id": 48,
+        "type": "truth",
+        "level": 3,
+        "text": "¿Qué parte de tu cuerpo secretamente quieres que yo explore más?"
+    },
+    {
+        "id": 49,
+        "type": "truth",
+        "level": 3,
+        "text": "Si pudieras pedir una sola noche sin límites conmigo, ¿qué haríamos?"
+    },
+    {
+        "id": 50,
+        "type": "truth",
+        "level": 3,
+        "text": "¿Qué es lo que más te excita de nosotros cuando lo repienso en tu mente?"
+    },
+    {
+        "id": 51,
+        "type": "dare",
+        "level": 3,
+        "text": "Mándame una foto tan hot como te atrevas en este momento."
+    },
+    {
+        "id": 52,
+        "type": "dare",
+        "level": 3,
+        "text": "Graba un audio describiendo exactamente lo que harías si estuvieras en mi cuarto ahora mismo."
+    },
+    {
+        "id": 53,
+        "type": "dare",
+        "level": 3,
+        "text": "Escríbeme el mensaje más ardiente que hayas pensado alguna vez mandarme, sin censura."
+    },
+    {
+        "id": 54,
+        "type": "dare",
+        "level": 3,
+        "text": "Cuéntame tu fantasía más prohibida de manera que no quede ningún detalle sin decir."
+    },
+    {
+        "id": 55,
+        "type": "dare",
+        "level": 3,
+        "text": "Mándame un audio de 1 minuto diciéndome exactamente lo que sientes por mí en modo completamente sincero y sensual."
+    },
+    {
+        "id": 56,
+        "type": "dare",
+        "level": 3,
+        "text": "Descríbeme paso a paso cómo sería nuestra noche más intensa si pudieras elegirlo todo."
+    },
+    {
+        "id": 57,
+        "type": "dare",
+        "level": 3,
+        "text": "Dime en voz alta (o escrito) la frase más atrevida que nunca me hayas dicho y que sepas que me encantaría escuchar."
+    },
+    {
+        "id": 58,
+        "type": "dare",
+        "level": 3,
+        "text": "Mándame una foto de la parte de tu cuerpo que más te gusta y cuéntame por qué."
+    },
+    {
+        "id": 59,
+        "type": "dare",
+        "level": 3,
+        "text": "Escríbeme el guion completo de cómo empezaría, avanzaría y terminaría nuestra noche perfecta."
+    },
+    {
+        "id": 60,
+        "type": "dare",
+        "level": 3,
+        "text": "Pide algo que llevas tiempo queriendo pedirme y que nunca te atreviste. Sin filtro. Ahora."
+    },
+    {
+        "id": 61,
+        "type": "truth",
+        "level": 1,
+        "text": "¿A qué persona de mi vida le tienes más envidia sana y por qué?"
+    },
+    {
+        "id": 62,
+        "type": "truth",
+        "level": 1,
+        "text": "¿Qué canción escuchas cuando me extrañas?"
+    },
+    {
+        "id": 63,
+        "type": "truth",
+        "level": 1,
+        "text": "¿Qué aspecto mío quisieras tener tú?"
+    },
+    {
+        "id": 64,
+        "type": "truth",
+        "level": 1,
+        "text": "¿Qué detalle de nuestra relación nunca le contarías a nadie?"
+    },
+    {
+        "id": 65,
+        "type": "truth",
+        "level": 1,
+        "text": "¿Cuándo fue la última vez que pensaste en mí sin que te lo pidiera nadie?"
+    },
+    {
+        "id": 66,
+        "type": "dare",
+        "level": 1,
+        "text": "Escríbeme los 5 momentos más especiales de nuestra historia en orden."
+    },
+    {
+        "id": 67,
+        "type": "dare",
+        "level": 1,
+        "text": "Canta o recita los primeros versos de la canción que más te recuerda a mí y compártelo."
+    },
+    {
+        "id": 68,
+        "type": "dare",
+        "level": 1,
+        "text": "Cuéntame el día exacto y la razón por la que decidiste que querías estar conmigo."
+    },
+    {
+        "id": 69,
+        "type": "dare",
+        "level": 1,
+        "text": "Mándame una captura de la última foto tuya que guardaste que te gusta mucho."
+    },
+    {
+        "id": 70,
+        "type": "dare",
+        "level": 1,
+        "text": "Dime en un minuto lo mejor de ser tu pareja. Sin pensarlo."
+    },
+    {
+        "id": 71,
+        "type": "truth",
+        "level": 2,
+        "text": "¿Hay algo que hayas hecho que secretamente esperabas que me pusiera celoso/a?"
+    },
+    {
+        "id": 72,
+        "type": "truth",
+        "level": 2,
+        "text": "¿Cuál fue la vez que más me deseaste sin que yo lo supiera?"
+    },
+    {
+        "id": 73,
+        "type": "truth",
+        "level": 2,
+        "text": "¿Piensas en mí cuando escuchas ciertos tipos de música? ¿Cuál?"
+    },
+    {
+        "id": 74,
+        "type": "truth",
+        "level": 2,
+        "text": "¿Qué ropa mía te parece más irresistible cuando me la ves puesta?"
+    },
+    {
+        "id": 75,
+        "type": "truth",
+        "level": 2,
+        "text": "¿Cuál fue la primera cosa física de mí que notaste y que te llamó la atención?"
+    },
+    {
+        "id": 76,
+        "type": "dare",
+        "level": 2,
+        "text": "Mándame una foto en la que salgas exactamente como estás sentado/a ahora mismo."
+    },
+    {
+        "id": 77,
+        "type": "dare",
+        "level": 2,
+        "text": "Dime una frase que sepas que me calienta cuando me la dices y que no te cuesta nada decir."
+    },
+    {
+        "id": 78,
+        "type": "dare",
+        "level": 2,
+        "text": "Escríbeme lo que me harías si tuvieras 1 hora sola conmigo y no hubiera ninguna distracción."
+    },
+    {
+        "id": 79,
+        "type": "dare",
+        "level": 2,
+        "text": "Mándame una foto de tus labios o de tu cuello y dime qué quieres que haga con ellos."
+    },
+    {
+        "id": 80,
+        "type": "dare",
+        "level": 2,
+        "text": "Cuéntame paso a paso cómo sería el primer minuto de vernos cuando nos reencontremos."
+    },
+    {
+        "id": 81,
+        "type": "truth",
+        "level": 3,
+        "text": "¿Cuántas veces has soñado conmigo de manera explícita sin decirme nada?"
+    },
+    {
+        "id": 82,
+        "type": "truth",
+        "level": 3,
+        "text": "¿Hay algún rol o scenario que quisieras que representáramos juntos?"
+    },
+    {
+        "id": 83,
+        "type": "truth",
+        "level": 3,
+        "text": "¿Cuál es la parte de mi cuerpo que más te desconcentra cuando me la ves?"
+    },
+    {
+        "id": 84,
+        "type": "truth",
+        "level": 3,
+        "text": "¿Prefieres que vaya despacio y te torture o directo y sin rodeos?"
+    },
+    {
+        "id": 85,
+        "type": "truth",
+        "level": 3,
+        "text": "¿Qué es lo que más te gusta que escuches de mí en esos momentos íntimos?"
+    },
+    {
+        "id": 86,
+        "type": "dare",
+        "level": 3,
+        "text": "Mándame el mensaje más hot que seas capaz de escribir ahora mismo. Sin límites."
+    },
+    {
+        "id": 87,
+        "type": "dare",
+        "level": 3,
+        "text": "Descríbeme en detalle explícito lo que más te gusta que te haga cuando estamos juntos."
+    },
+    {
+        "id": 88,
+        "type": "dare",
+        "level": 3,
+        "text": "Graba un audio de 45 segundos diciéndome en el tono más sensual que puedas algo que me vuelva loco/a."
+    },
+    {
+        "id": 89,
+        "type": "dare",
+        "level": 3,
+        "text": "Dime cuál es el lugar de tu cuerpo donde más quieres que me concentre la próxima vez y por qué exactamente."
+    },
+    {
+        "id": 90,
+        "type": "dare",
+        "level": 3,
+        "text": "Escríbeme una historia de 5 frases de lo que pasaría si estuviéramos juntos en este momento sin ningún filtro."
+    },
+    {
+        "id": 91,
+        "type": "truth",
+        "level": 1,
+        "text": "¿Hay algo que hayas cambiado de ti gracias a mí?"
+    },
+    {
+        "id": 92,
+        "type": "truth",
+        "level": 2,
+        "text": "¿Cuál es la parte de mi personalidad que más te atrae físicamente aunque parezca raro?"
+    },
+    {
+        "id": 93,
+        "type": "truth",
+        "level": 3,
+        "text": "Si pudieras describir lo que sientes cuando estamos en nuestros momentos más íntimos con 3 palabras, ¿cuáles serían?"
+    },
+    {
+        "id": 94,
+        "type": "dare",
+        "level": 1,
+        "text": "Escríbeme cómo te imaginas que seremos de viejos juntos."
+    },
+    {
+        "id": 95,
+        "type": "dare",
+        "level": 2,
+        "text": "Mándame un voice note de tu voz diciendo lo que harías si estuvieras aquí conmigo ahora."
+    },
+    {
+        "id": 96,
+        "type": "dare",
+        "level": 3,
+        "text": "Exprésame tu fantasía más picante en detalle, como si fuera una historia, sin omitir nada."
+    },
+    {
+        "id": 97,
+        "type": "truth",
+        "level": 1,
+        "text": "¿Cuál es el momento del día en que más piensas en mí?"
+    },
+    {
+        "id": 98,
+        "type": "truth",
+        "level": 2,
+        "text": "¿Qué harías si te mando un mensaje hot a las 3am sin previo aviso?"
+    },
+    {
+        "id": 99,
+        "type": "dare",
+        "level": 2,
+        "text": "Mándame una foto de la ropa que tienes puesta ahora y dime que harías si yo estuviera contigo."
+    },
+    {
+        "id": 100,
+        "type": "dare",
+        "level": 3,
+        "text": "Pide algo que llevas tiempo queriendo pedirme en voz alta. Sin filtro. Te escucho."
+    }
+]

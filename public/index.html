@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SincroParejas</title>
+    <meta name="description"
+        content="Aplicación web para parejas. Sincroniza calendarios y haz seguimiento a tus ciclos juntos.">
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+        rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['"Cormorant Garamond"', 'serif'],
+                        sans: ['"DM Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#c9a9ff',
+                        accent: '#ff8fab',
+                        gold: '#e8c87a',
+                    },
+                    backdropBlur: { '2xl': '40px' },
+                    keyframes: {
+                        fadeIn: { from: { opacity: '0', transform: 'translateY(10px)' }, to: { opacity: '1', transform: 'translateY(0)' } },
+                        slideUp: { from: { transform: 'translateY(100%)' }, to: { transform: 'translateY(0)' } },
+                        fadeBg: { from: { opacity: '0' }, to: { opacity: '1' } },
+                        pulseOvu: { '0%,100%': { boxShadow: '0 0 0 0 rgba(232,200,122,0.4)' }, '70%': { boxShadow: '0 0 0 8px rgba(232,200,122,0)' } },
+                        floatUp: { '0%': { transform: 'translateY(100%) scale(0.5)', opacity: '0' }, '20%,80%': { opacity: '1' }, '100%': { transform: 'translateY(-300%) scale(1.5)', opacity: '0' } },
+                        notifIn: { from: { opacity: '0', transform: 'translateY(-8px)' }, to: { opacity: '1', transform: 'translateY(0)' } },
+                        pulseSoft: { '0%,100%': { opacity: '1' }, '50%': { opacity: '0.55' } },
+                    },
+                    animation: {
+                        fadeIn: 'fadeIn 0.4s ease-out forwards',
+                        slideUp: 'slideUp 0.35s cubic-bezier(0.23,1,0.32,1) forwards',
+                        fadeBg: 'fadeBg 0.3s forwards',
+                        pulseOvu: 'pulseOvu 2s infinite',
+                        floatUp: 'floatUp 3s ease-out forwards',
+                        notifIn: 'notifIn 0.3s ease',
+                        pulseSoft: 'pulseSoft 2.5s ease infinite',
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Only things Tailwind can't do ── */
+
+        /* Shooting-stars canvas */
+        #cosmos-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Nebula glow blobs */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::before {
+            width: 600px;
+            height: 600px;
+            top: -200px;
+            left: -150px;
+            background: radial-gradient(circle, rgba(100, 60, 180, .09) 0%, transparent 70%);
+        }
+
+        body::after {
+            width: 500px;
+            height: 500px;
+            bottom: -150px;
+            right: -100px;
+            background: radial-gradient(circle, rgba(180, 60, 100, .07) 0%, transparent 70%);
+        }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #c9a9ff 0%, #ff8fab 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .08);
+            border-radius: 4px;
+        }
+
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, .08) transparent;
+        }
+
+        /* Glass surface */
+        .glass {
+            background: rgba(255, 255, 255, .035);
+            backdrop-filter: blur(24px) saturate(150%);
+            -webkit-backdrop-filter: blur(24px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, .08);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, .55), 0 1px 0 rgba(255, 255, 255, .05) inset, 0 0 40px rgba(201, 169, 255, .04);
+            transition: border-color .3s, box-shadow .3s;
+        }
+
+        .glass:hover {
+            border-color: rgba(180, 140, 255, .22);
+        }
+
+        /* Calendar day types */
+        .cal-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .8rem;
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            color: rgba(255, 255, 255, .5);
+            font-weight: 300;
+            transition: background .18s, transform .18s;
+            user-select: none;
+            touch-action: pan-y;
+        }
+
+        .cal-day:hover {
+            background: rgba(255, 255, 255, .10);
+            color: rgba(255, 255, 255, .92);
+        }
+
+        .cal-day.empty {
+            pointer-events: none;
+        }
+
+        .cal-day.today {
+            border: 1px solid rgba(201, 169, 255, .45);
+            color: #c9a9ff;
+            font-weight: 500;
+        }
+
+        .cal-day.mine-cycle-real {
+            background: rgba(255, 143, 171, .22);
+            color: #ff8fab;
+            box-shadow: inset 0 0 8px rgba(255, 143, 171, .2);
+        }
+
+        .cal-day.mine-cycle-pred {
+            background: rgba(255, 143, 171, .07);
+            border: 1px dashed rgba(255, 143, 171, .35);
+        }
+
+        .cal-day.mine-fertile {
+            background: rgba(16, 185, 129, .12);
+            border: 1px solid rgba(16, 185, 129, .3);
+            color: #6ecdb5;
+        }
+
+        .cal-day.mine-ovulation {
+            border: 2px dashed rgba(232, 200, 122, .5);
+            color: #e8c87a;
+            animation: pulseOvu 2s infinite;
+        }
+
+        .cal-day.partner-cycle {
+            background: rgba(201, 169, 255, .12);
+        }
+
+        .cal-day.has-event::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #c9a9ff;
+        }
+
+        .day-indicators {
+            position: absolute;
+            bottom: 2px;
+            display: flex;
+            gap: 2px;
+            font-size: .55em;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* Tab active */
+        .tab-btn {
+            flex-shrink: 0;
+            transition: all .25s;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, rgba(201, 169, 255, .18), rgba(255, 143, 171, .12));
+            border-color: rgba(201, 169, 255, .38);
+            color: #c9a9ff;
+            font-weight: 500;
+            box-shadow: 0 2px 16px rgba(201, 169, 255, .10);
+        }
+
+        /* Event btn color hovers */
+        .event-btn.c-red:hover {
+            background: rgba(244, 63, 94, .10) !important;
+            border-color: rgba(244, 63, 94, .35) !important;
+            color: #f97f95 !important;
+        }
+
+        .event-btn.c-pink:hover {
+            background: rgba(255, 143, 171, .10) !important;
+            border-color: rgba(255, 143, 171, .35) !important;
+            color: #ff8fab !important;
+        }
+
+        .event-btn.c-blue:hover {
+            background: rgba(59, 130, 246, .10) !important;
+            border-color: rgba(59, 130, 246, .35) !important;
+            color: #7eaff5 !important;
+        }
+
+        .event-btn.c-purple:hover {
+            background: rgba(201, 169, 255, .10) !important;
+            border-color: rgba(201, 169, 255, .35) !important;
+            color: #c9a9ff !important;
+        }
+
+        .event-btn.active {
+            border-color: rgba(180, 140, 255, .3);
+            background: rgba(255, 255, 255, .10);
+        }
+
+        /* Timeline connector */
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 4px;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .1);
+        }
+
+        .timeline-item.t-intimacy::before {
+            background: #ff8fab;
+            box-shadow: 0 0 6px rgba(255, 143, 171, .5);
+        }
+
+        .timeline-item.t-period::before {
+            background: #f43f5e;
+            box-shadow: 0 0 6px rgba(244, 63, 94, .5);
+        }
+
+        .timeline-item.t-symptom::before {
+            background: #3b82f6;
+            box-shadow: 0 0 6px rgba(59, 130, 246, .4);
+        }
+
+        .timeline-item.t-note::before {
+            background: #c9a9ff;
+            box-shadow: 0 0 6px rgba(201, 169, 255, .4);
+        }
+
+        /* Flip card */
+        .flip-card {
+            perspective: 1200px;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform .75s cubic-bezier(.175, .885, .32, 1.275);
+        }
+
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front,
+        .flip-card-back {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(180, 140, 255, .22);
+        }
+
+        .flip-card-front {
+            background: linear-gradient(135deg, rgba(201, 169, 255, .10), rgba(255, 143, 171, .06));
+        }
+
+        .flip-card-back {
+            background: linear-gradient(135deg, rgba(255, 143, 171, .08), rgba(201, 169, 255, .06));
+            transform: rotateY(180deg);
+        }
+
+        /* Role card active */
+        .role-card.active {
+            border-color: rgba(201, 169, 255, .5);
+            background: rgba(201, 169, 255, .12);
+            box-shadow: 0 8px 28px rgba(201, 169, 255, .15);
+            transform: scale(1.04);
+        }
+
+        /* Tag selected */
+        .tag-opt.selected {
+            background: rgba(201, 169, 255, .15);
+            border-color: rgba(201, 169, 255, .4);
+            color: #c9a9ff;
+            font-weight: 500;
+        }
+
+        /* Step dot active */
+        .step-dots .dot.active {
+            background: #c9a9ff;
+            transform: scale(1.3);
+            box-shadow: 0 0 8px rgba(201, 169, 255, .5);
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeIn .45s ease;
+        }
+
+        /* Tab panes */
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+            animation: fadeIn .35s ease;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            animation: fadeBg .3s forwards;
+        }
+
+        /* Input date fix iOS */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(.5);
+        }
+
+        /* Floating heart animation */
+        .floating-heart {
+            position: absolute;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+            animation: floatUp 3s ease-out forwards;
+            font-size: 1.5em;
+        }
+
+        /* Wizard step */
+        .wizard-step {
+            animation: fadeIn .4s cubic-bezier(.175, .885, .32, 1) forwards;
+        }
+    </style>
+</head>
+
+<body class="font-sans font-light antialiased min-h-screen flex justify-center overflow-x-hidden"
+    style="background:radial-gradient(circle at 20% 20%,rgba(80,40,140,.12) 0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(140,40,80,.08) 0%,transparent 50%),#060608; background-attachment:fixed; color:rgba(255,255,255,.92);">
+    <div id="notification-wrapper" class="fixed top-5 right-5 z-[10000] space-y-3 p-4 rounded-[32px] bg-black/20"></div>
+    <canvas id="cosmos-canvas"></canvas>
+    <div class="app-container w-full max-w-[480px] min-h-screen pb-12 relative z-10">
+
+        <!-- Dashboard -->
+        <section id="dashboard-section" class="screen">
+
+            <!-- Header -->
+            <header class="flex items-center justify-between gap-4 pt-12 pb-5 px-2">
+                <div class="flex-1">
+                    <h2 class="font-display font-light text-[2rem] leading-tight tracking-wide">
+                        <span id="display-name" class="gradient-text"></span>
+                    </h2>
+                    <div id="anniversary-badge" style="display:none;"
+                        class="inline-flex items-center gap-1 mt-1.5 px-3 py-1 rounded-full text-[0.72rem] font-medium tracking-wider"
+                        style="background:rgba(201,169,255,.15); border:1px solid rgba(180,140,255,.22); color:#c9a9ff;">
+                        <i data-lucide="heart" style="width:11px;height:11px;stroke:#c9a9ff;fill:#c9a9ff;"></i>
+                        <span>0 días juntos</span>
+                    </div>
+                </div>
+                <div class="glass rounded-[18px] px-3.5 py-2 text-right flex-shrink-0">
+                    <span class="block text-[0.67rem] uppercase tracking-[.09em] text-white/30">Tu código</span>
+                    <strong id="display-code"
+                        class="block mt-0.5 font-mono text-[1.05rem] tracking-[.15em] text-primary">——————</strong>
+                </div>
+            </header>
+
+            <!-- Nav -->
+            <nav class="app-nav flex gap-1 pb-4 overflow-x-auto" style="scrollbar-width:none;">
+                <button
+                    class="tab-btn active glass rounded-full px-4 py-2 text-[.73rem] tracking-[.04em] text-white/50 border border-white/7 whitespace-nowrap"
+                    data-target="tab-calendar">
+                    <i data-lucide="calendar-days" class="inline w-3.5 h-3.5 mr-1 align-middle"></i><span
+                        class="align-middle">Calendario</span>
+                </button>
+                <button
+                    class="tab-btn glass rounded-full px-4 py-2 text-[.73rem] tracking-[.04em] text-white/50 border border-white/7 whitespace-nowrap"
+                    data-target="tab-timeline">
+                    <i data-lucide="clock-3" class="inline w-3.5 h-3.5 mr-1 align-middle"></i><span
+                        class="align-middle">Eventos</span>
+                </button>
+                <button
+                    class="tab-btn glass rounded-full px-4 py-2 text-[.73rem] tracking-[.04em] text-white/50 border border-white/7 whitespace-nowrap"
+                    data-target="tab-games">
+                    <i data-lucide="sparkles" class="inline w-3.5 h-3.5 mr-1 align-middle"></i><span
+                        class="align-middle">Juego</span>
+                </button>
+                <button
+                    class="tab-btn glass rounded-full px-4 py-2 text-[.73rem] tracking-[.04em] text-white/50 border border-white/7 whitespace-nowrap"
+                    data-target="tab-sync">
+                    <i data-lucide="link-2" class="inline w-3.5 h-3.5 mr-1 align-middle"></i><span
+                        class="align-middle">Conexión</span>
+                </button>
+                <button
+                    class="tab-btn glass rounded-full px-4 py-2 text-[.73rem] tracking-[.04em] text-white/50 border border-white/7 whitespace-nowrap"
+                    data-target="tab-profile">
+                    <i data-lucide="user-round" class="inline w-3.5 h-3.5 mr-1 align-middle"></i><span
+                        class="align-middle">Perfil</span>
+                </button>
+            </nav>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+
+                <!-- ── CALENDARIO ── -->
+                <div id="tab-calendar" class="tab-pane active animate-fadeIn">
+
+                    <!-- Cycle settings -->
+                    <div id="cycle-settings-box" class="glass rounded-3xl p-5 mb-4">
+                        <h3 class="font-display font-normal text-xl mb-1 text-white/90">Parámetros del Ciclo</h3>
+                        <p class="text-[.82rem] text-white/45 mb-4 leading-relaxed">Establece el inicio y patrón de tu
+                            ciclo para mejores predicciones.</p>
+                        <div class="flex gap-3">
+                            <div class="flex-1">
+                                <label
+                                    class="block text-[.68rem] uppercase tracking-[.09em] text-white/28 mb-1.5">Inicio
+                                    del periodo</label>
+                                <input type="date" id="cycle-date"
+                                    class="w-full px-4 py-3 rounded-xl bg-white/[.04] border border-white/7 text-white/90 text-[.88rem] font-light outline-none focus:border-primary/40 focus:bg-white/[.07] transition-all">
+                            </div>
+                            <div class="flex-1">
+                                <label
+                                    class="block text-[.68rem] uppercase tracking-[.09em] text-white/28 mb-1.5">Duración
+                                    (días)</label>
+                                <input type="number" id="cycle-length" value="28" min="20" max="45"
+                                    class="w-full px-4 py-3 rounded-xl bg-white/[.04] border border-white/7 text-white/90 text-[.88rem] font-light outline-none focus:border-primary/40 focus:bg-white/[.07] transition-all">
+                            </div>
+                        </div>
+                        <button id="btn-save-cycle"
+                            class="mt-3 w-full py-3 rounded-full bg-white/[.065] border border-white/7 text-white/50 text-[.77rem] uppercase tracking-[.08em] hover:bg-white/10 hover:border-primary/25 hover:text-white/90 transition-all">
+                            Actualizar predicciones
+                        </button>
+                    </div>
+
+                    <!-- Calendar -->
+                    <div class="glass rounded-3xl p-5 mb-4">
+                        <div class="flex items-center justify-between mb-4">
+                            <button id="btn-prev-month"
+                                class="glass rounded-full w-9 h-9 flex items-center justify-center border border-white/7 text-white/50 hover:bg-white/10 hover:border-primary/25 hover:text-white/90 transition-all">
+                                <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <h3 id="calendar-month-year"
+                                class="font-display font-normal text-[1.15rem] tracking-wider text-white/90 mb-0">...
+                            </h3>
+                            <button id="btn-next-month"
+                                class="glass rounded-full w-9 h-9 flex items-center justify-center border border-white/7 text-white/50 hover:bg-white/10 hover:border-primary/25 hover:text-white/90 transition-all">
+                                <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex flex-wrap gap-2.5 mb-3.5 justify-center text-[.72rem]">
+                            <div class="flex items-center gap-1.5 text-white/50"><span
+                                    class="w-2 h-2 rounded-full inline-block dot mine"></span>Mío</div>
+                            <div class="flex items-center gap-1.5 text-white/50"><span
+                                    class="w-2 h-2 rounded-full bg-primary inline-block"></span>Pareja</div>
+                            <div class="flex items-center gap-1.5 text-white/50"><span
+                                    class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>Fértil</div>
+                            <div class="flex items-center gap-1.5 text-white/50"><span
+                                    class="w-2 h-2 rounded-full bg-gold inline-block"></span>Ovulación</div>
+                        </div>
+
+                        <div
+                            class="grid grid-cols-7 text-center text-[.63rem] uppercase tracking-[.06em] text-white/28 mb-2">
+                            <span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span>
+                        </div>
+                        <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
+                        <p class="text-[.7rem] text-center text-white/28 mt-3 italic">Toca cualquier día para registrar
+                            un evento, nota o síntoma.</p>
+                    </div>
+                </div>
+
+                <!-- ── TIMELINE ── -->
+                <div id="tab-timeline" class="tab-pane animate-fadeIn">
+                    <div class="glass timeline-card rounded-3xl p-5 mb-4">
+                        <h3 class="font-display font-normal text-xl text-white/90 mb-1">Línea de Tiempo</h3>
+                        <p class="text-[.82rem] text-white/45 mb-4">Nuestro historial de momentos importantes.</p>
+                        <div id="timeline-container"
+                            class="timeline-container max-h-[420px] overflow-y-auto pr-1 mt-3 relative"></div>
+                    </div>
+                </div>
+
+                <!-- ── SINCRONIZACIÓN ── -->
+                <div id="tab-sync" class="tab-pane animate-fadeIn">
+                    <div class="glass rounded-3xl p-5 mb-4 text-center">
+                        <h3 class="font-display font-normal text-xl text-white/90 mb-1">Conecta con tu Pareja</h3>
+                        <p class="text-[.82rem] text-white/45 mb-4">Ingresa el código de 6 caracteres de tu pareja para
+                            vincularos.</p>
+
+                        <div id="partner-info" style="display:none;" class="mb-4">
+                            <div class="success-box animate-pulseSoft mb-4 flex items-center justify-center gap-2 rounded-[18px] px-4 py-3.5 text-[.83rem] tracking-wider"
+                                style="background:rgba(201,169,255,.14); border:1px solid rgba(180,140,255,.22); color:#c9a9ff;">
+                                <i data-lucide="heart" style="width:14px;height:14px;stroke:#c9a9ff;fill:#c9a9ff;"></i>
+                                Almas vinculadas
+                            </div>
+
+                            <div class="glass rounded-2xl p-5 mt-4 text-left">
+                                <h4 id="p-name" class="gradient-text font-display font-normal text-lg mb-2">Pareja</h4>
+                                <p class="text-[.87rem] text-white/50 mt-2.5">
+                                    <strong
+                                        class="block text-[.67rem] uppercase tracking-[.09em] text-white/28 mb-1">Cumpleaños</strong>
+                                    <span id="p-birth" class="text-white/90"></span>
+                                </p>
+                                <p class="text-[.87rem] text-white/50 mt-2.5">
+                                    <strong
+                                        class="block text-[.67rem] uppercase tracking-[.09em] text-white/28 mb-1">Ideas
+                                        de regalo</strong>
+                                    <i id="p-gifts" style="color:#c9a9ff; font-style:normal;"></i>
+                                </p>
+                            </div>
+
+                            <div class="glass rounded-2xl p-5 mt-4 text-left">
+                                <h4 class="font-display font-normal text-lg text-white/90 mb-1">Nuestra Fecha Especial
+                                </h4>
+                                <p class="text-[.82rem] text-white/45 mb-3">El día en que inició su historia.</p>
+                                <div class="flex gap-2.5 items-end">
+                                    <input type="date" id="anniversary-date-input" style="flex:1;"
+                                        class="flex-1 px-4 py-3 rounded-xl bg-white/[.04] border border-white/7 text-white/90 text-[.88rem] font-light outline-none focus:border-primary/40 transition-all">
+                                    <button id="btn-save-anniversary"
+                                        class="px-5 py-3 rounded-full bg-primary/[.2] border border-primary/30 text-primary text-[.77rem] uppercase tracking-[.1em] font-medium hover:bg-primary/30 hover:border-primary/50 transition-all">
+                                        Fijar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="sync-form">
+                            <div class="mb-3.5 text-left">
+                                <label
+                                    class="block text-[.68rem] uppercase tracking-[.09em] text-white/28 mb-1.5">Código
+                                    de pareja</label>
+                                <input type="text" id="partner-code-input" placeholder="Ej: A1B2C3" maxlength="6"
+                                    style="text-transform:uppercase;"
+                                    class="w-full px-4 py-3 rounded-xl bg-white/[.04] border border-white/7 text-white/90 text-[.88rem] font-light outline-none focus:border-primary/40 focus:bg-white/[.07] transition-all tracking-widest">
+                            </div>
+                            <button id="btn-connect"
+                                class="w-full py-3.5 rounded-full bg-primary/[.2] border border-primary/30 text-primary text-[.77rem] uppercase tracking-[.1em] font-medium hover:bg-primary/30 hover:border-primary/50 hover:-translate-y-px transition-all">
+                                Vincular almas
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── JUEGO ── -->
+                <div id="tab-games" class="tab-pane animate-fadeIn">
+
+                    <!-- SELECTOR -->
+                    <div id="game-selector">
+                        <h3 class="font-display font-normal text-[1.4rem] text-white/90 text-center mb-1">Juegos</h3>
+                        <p class="text-[.82rem] text-white/45 text-center mb-5">Elige cómo quieres conectar hoy.</p>
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <button id="btn-select-questions"
+                                class="glass rounded-2xl p-5 flex flex-col items-center gap-3 border border-primary/20 hover:border-primary/50 hover:-translate-y-1 transition-all group">
+                                <i data-lucide="message-circle-heart"
+                                    class="w-8 h-8 text-primary/60 group-hover:text-primary transition-colors"></i>
+                                <div class="text-center">
+                                    <div class="text-white/90 text-[.82rem] font-medium">Preguntas</div>
+                                    <div class="text-white/35 text-[.68rem] mt-0.5">Descubriéndonos</div>
+                                </div>
+                            </button>
+                            <button id="btn-select-dare"
+                                class="glass rounded-2xl p-5 flex flex-col items-center gap-3 border border-accent/20 hover:border-accent/50 hover:-translate-y-1 transition-all group">
+                                <i data-lucide="zap"
+                                    class="w-8 h-8 text-accent/60 group-hover:text-accent transition-colors"></i>
+                                <div class="text-center">
+                                    <div class="text-white/90 text-[.82rem] font-medium">Reto o Verdad</div>
+                                    <div class="text-white/35 text-[.68rem] mt-0.5">Sin rendirse</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PANEL: PREGUNTAS -->
+                    <div id="panel-questions" style="display:none;">
+                        <button id="btn-back-q"
+                            class="flex items-center gap-1.5 text-[.72rem] text-white/40 hover:text-white/80 transition-all mb-4 uppercase tracking-widest bg-transparent border-none cursor-pointer">
+                            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Volver
+                        </button>
+                        <div class="glass game-card rounded-3xl p-5 mb-4 text-center relative overflow-hidden">
+                            <div class="flex justify-between items-center mb-3">
+                                <span id="game-level-badge"
+                                    class="px-3 py-1 rounded-full bg-white/[.05] text-[.65rem] border border-white/10 uppercase tracking-[.1em] text-white/50">Nivel
+                                    1</span>
+                                <span id="game-progress-text"
+                                    class="text-[.7rem] text-primary/70 tracking-widest">0/20</span>
+                            </div>
+                            <div class="w-full h-1 bg-white/[.05] rounded-full mb-4 overflow-hidden">
+                                <div id="game-progress-bar"
+                                    class="h-full bg-gradient-to-r from-primary to-primary/50 transition-all duration-500"
+                                    style="width:0%;"></div>
+                            </div>
+                            <h3 class="font-display font-normal text-[1.4rem] text-white/90 mb-1">Descubriéndonos</h3>
+                            <div id="game-idle-state" class="py-10">
+                                <i data-lucide="heart" class="w-12 h-12 mx-auto text-primary/30 mb-4 opacity-50"></i>
+                                <p class="text-[.82rem] text-white/45 mb-6">Preguntas que acercan a dos personas a
+                                    distancia.</p>
+                                <button id="btn-start-game"
+                                    class="w-full py-3.5 rounded-full bg-gradient-to-r from-primary/30 to-primary/10 border border-primary/30 text-white text-[.8rem] uppercase tracking-[.1em] hover:bg-primary/40 hover:border-primary/50 transition-all">Comenzar
+                                    Juego</button>
+                            </div>
+                            <div id="game-active-state" style="display:none;">
+                                <p id="game-turn-msg" class="text-[.85rem] font-medium text-primary mb-4 min-h-[20px]">
+                                    Esperando...</p>
+                                <div class="flip-card w-full h-56" id="flip-card-container">
+                                    <div class="flip-card-inner">
+                                        <div class="flip-card-front"><span
+                                                class="font-display text-[1.1rem] tracking-widest text-white/50">Preparando…</span>
+                                        </div>
+                                        <div class="flip-card-back flex flex-col items-center justify-center p-4">
+                                            <p id="question-text"
+                                                class="font-display text-[1.1rem] leading-relaxed text-white/90"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button id="btn-ready-game"
+                                    class="mt-4 w-full py-3.5 rounded-full bg-white/[.065] border border-white/7 text-white/70 text-[.77rem] uppercase tracking-[.08em] hover:bg-white/10 hover:border-primary/25 hover:text-white/90 transition-all">
+                                    <i data-lucide="check" class="inline w-3.5 h-3.5 mr-1.5 align-middle"></i> Ya
+                                    Respondí
+                                </button>
+                                <div id="game-waiting-partner" class="mt-4 text-[.75rem] text-white/40 hidden">
+                                    <i data-lucide="clock" class="inline w-3 h-3 mr-1 align-middle animate-pulse"></i>
+                                    Esperando a tu pareja...
+                                </div>
+                            </div>
+                        </div>
+                        <div id="game-finished-state" class="text-center py-8 hidden">
+                            <h2 class="font-display text-2xl text-white mb-2">¡Ronda Completada!</h2>
+                            <p class="text-white/50 text-sm mb-5">Han respondido las 20 preguntas. ¿Otra ronda?</p>
+                            <button id="btn-restart-game"
+                                class="px-6 py-3 rounded-full bg-white/10 border border-white/20 text-white text-xs uppercase tracking-widest">Reiniciar</button>
+                        </div>
+                    </div>
+
+                    <!-- PANEL: RETO O VERDAD -->
+                    <div id="panel-dare" style="display:none;">
+                        <button id="btn-back-d"
+                            class="flex items-center gap-1.5 text-[.72rem] text-white/40 hover:text-white/80 transition-all mb-4 uppercase tracking-widest bg-transparent border-none cursor-pointer">
+                            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Volver
+                        </button>
+                        <div class="glass dare-card rounded-3xl p-5 mb-4 text-center relative overflow-hidden">
+                            <div class="flex justify-between items-center mb-3">
+                                <span id="dare-level-badge"
+                                    class="px-3 py-1 rounded-full bg-white/[.05] text-[.65rem] border border-white/10 uppercase tracking-[.1em] text-white/50">Nivel
+                                    1</span>
+                                <span id="dare-progress-text"
+                                    class="text-[.7rem] text-accent/70 tracking-widest">0/20</span>
+                            </div>
+                            <div class="w-full h-1 bg-white/[.05] rounded-full mb-4 overflow-hidden">
+                                <div id="dare-progress-bar"
+                                    class="h-full bg-gradient-to-r from-accent to-accent/50 transition-all duration-500"
+                                    style="width:0%;"></div>
+                            </div>
+                            <h3 class="font-display font-normal text-[1.4rem] text-white/90 mb-1">Reto o Verdad</h3>
+                            <div id="dare-idle-state" class="py-10">
+                                <i data-lucide="zap" class="w-12 h-12 mx-auto text-accent/30 mb-4 opacity-50"></i>
+                                <p class="text-[.82rem] text-white/45 mb-6">Retos y verdades para los dos, sin importar
+                                    la distancia.</p>
+                                <button id="btn-start-dare"
+                                    class="w-full py-3.5 rounded-full bg-gradient-to-r from-accent/30 to-accent/10 border border-accent/30 text-white text-[.8rem] uppercase tracking-[.1em] hover:bg-accent/40 transition-all">Comenzar
+                                    Reto o Verdad</button>
+                            </div>
+                            <div id="dare-active-state" style="display:none;">
+                                <p id="dare-turn-msg" class="text-[.85rem] font-medium text-accent mb-3 min-h-[20px]">
+                                    Esperando...</p>
+                                <div id="dare-type-badge"
+                                    class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border mb-4 text-[.75rem] uppercase tracking-widest font-semibold"
+                                    style="background:rgba(255,143,171,.1);border-color:rgba(255,143,171,.3);color:#ff8fab;">
+                                    <i data-lucide="circle-help" class="w-3.5 h-3.5"></i>
+                                    <span id="dare-type-label">VERDAD</span>
+                                </div>
+                                <!-- La misma clase .flip-card que ya funciona ==-->
+                                <div class="flip-card w-full h-52" id="dare-flip-card">
+                                    <div class="flip-card-inner">
+                                        <div class="flip-card-front"
+                                            style="background:linear-gradient(135deg,rgba(255,143,171,.10),rgba(232,200,122,.06));">
+                                            <span
+                                                class="font-display text-[1.1rem] tracking-widest text-white/50">Preparando
+                                                reto…</span>
+                                        </div>
+                                        <div class="flip-card-back flex flex-col items-center justify-center p-4"
+                                            style="background:linear-gradient(135deg,rgba(255,143,171,.08),rgba(201,169,255,.06));">
+                                            <p id="dare-challenge-text"
+                                                class="font-display text-[1.05rem] leading-relaxed text-white/90"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button id="btn-dare-done"
+                                    class="mt-4 w-full py-3.5 rounded-full bg-white/[.065] border border-white/7 text-white/70 text-[.77rem] uppercase tracking-[.08em] hover:bg-white/10 hover:border-accent/25 hover:text-white/90 transition-all">
+                                    <i data-lucide="check-circle" class="inline w-3.5 h-3.5 mr-1.5 align-middle"></i>
+                                    ¡Listo! Completado
+                                </button>
+                                <div id="dare-waiting-partner" class="mt-4 text-[.75rem] text-white/40 hidden">
+                                    <i data-lucide="clock" class="inline w-3 h-3 mr-1 align-middle animate-pulse"></i>
+                                    Esperando a tu pareja...
+                                </div>
+                            </div>
+                        </div>
+                        <div id="dare-finished-state" class="text-center py-8 hidden">
+                            <h2 class="font-display text-2xl text-white mb-2">¡Retos Completados!</h2>
+                            <p class="text-white/50 text-sm mb-5">Se atrevieron a todo. ¿Otra ronda? 🔥</p>
+                            <button id="btn-restart-dare"
+                                class="px-6 py-3 rounded-full bg-white/10 border border-white/20 text-white text-xs uppercase tracking-widest">Nueva
+                                Ronda</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- OVERLAY: Invitación de juego del partner -->
+                <div id="game-invite-overlay"
+                    style="display:none; position:fixed; inset:0; z-index:11000; background:rgba(6,5,10,.85); backdrop-filter:blur(24px); align-items:center; justify-content:center; padding:24px;">
+                    <div class="glass rounded-[40px] p-10 text-center animate-scaleIn" style="max-width:380px; width:100%; border:1px solid rgba(255,255,255,.1); box-shadow: 0 40px 120px rgba(0,0,0,0.9);">
+                        <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+                            <i data-lucide="gamepad-2" class="w-10 h-10 text-primary"></i>
+                        </div>
+                        <h3 id="game-invite-title" class="font-display text-[1.8rem] leading-tight text-white mb-3">¡Es hora de jugar!</h3>
+                        <p id="game-invite-desc" class="text-[.95rem] text-white/50 mb-8 leading-relaxed"></p>
+                        
+                        <div class="flex flex-col gap-3">
+                            <button id="btn-invite-join"
+                                class="w-full py-4 rounded-full bg-primary text-black text-[.85rem] uppercase tracking-[.15em] font-bold hover:bg-white hover:scale-[1.02] transition-all shadow-lg shadow-primary/20">
+                                ACEPTAR Y JUGAR
+                            </button>
+                            <button id="btn-invite-dismiss" onclick="document.getElementById('game-invite-overlay').style.display='none'"
+                                class="w-full py-3 text-white/30 text-[.75rem] uppercase tracking-widest hover:text-white/70 transition-all bg-transparent border-none cursor-pointer">
+                                Quizás después
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── PERFIL ── -->
+                <div id="tab-profile" class="tab-pane animate-fadeIn">
+                    <div class="glass rounded-3xl p-5 mb-4">
+                        <h3 class="font-display font-normal text-xl text-white/90 mb-1">Mi Perfil</h3>
+                        <p class="text-[.82rem] text-white/45 mb-5">Actualiza tu información personal</p>
+
+                        <div class="mb-3.5">
+                            <label
+                                class="block text-[.68rem] uppercase tracking-[.09em] text-white/28 mb-1.5">Nombre</label>
+                            <input type="text" id="prof-name"
+                                class="w-full px-4 py-3 rounded-xl bg-white/[.04] border border-white/7 text-white/90 text-[.88rem] font-light outline-none focus:border-primary/40 focus:bg-white/[.07] transition-all">
+                        </div>
+                        <div class="mb-3.5">
+                            <label
+                                class="block text-[.68rem] uppercase tracking-[.09em] text-white/28 mb-1.5">Rol</label>
+                            <select id="prof-gender"
+                                class="w-full px-4 py-3 rounded-xl bg-white/[.04] border border-white/7 text-white/90 text-[.88rem] font-light outline-none focus:border-primary/40 focus:bg-white/[.07] transition-all appearance-none">
+                                <option value="M" style="background:#111;">Mujer — registra ciclo</option>
+                                <option value="H" style="background:#111;">Hombre — acompaña</option>
+                                <option value="O" style="background:#111;">Otro</option>
+                            </select>
+                        </div>
+                        <div class="mb-3.5">
+                            <label
+                                class="block text-[.68rem] uppercase tracking-[.09em] text-white/28 mb-1.5">Cumpleaños</label>
+                            <input type="date" id="prof-birth"
+                                class="w-full px-4 py-3 rounded-xl bg-white/[.04] border border-white/7 text-white/90 text-[.88rem] font-light outline-none focus:border-primary/40 focus:bg-white/[.07] transition-all">
+                        </div>
+                        <div class="mb-3.5">
+                            <label class="block text-[.68rem] uppercase tracking-[.09em] text-white/28 mb-1.5">Mis
+                                gustos de regalos</label>
+                            <textarea id="prof-gift" rows="2"
+                                class="w-full px-4 py-3 rounded-xl bg-white/[.04] border border-white/7 text-white/90 text-[.88rem] font-light outline-none focus:border-primary/40 focus:bg-white/[.07] transition-all resize-none"></textarea>
+                        </div>
+                        <button id="btn-update-profile"
+                            class="mt-2 w-full py-3.5 rounded-full bg-primary/[.2] border border-primary/30 text-primary text-[.77rem] uppercase tracking-[.1em] font-medium hover:bg-primary/30 hover:border-primary/50 hover:-translate-y-px transition-all">
+                            Guardar cambios
+                        </button>
+                    </div>
+
+                    <div class="glass rounded-3xl p-5 mb-4 text-center" style="border-color:rgba(255,74,74,.2);">
+                        <h4 class="font-display font-normal text-lg mb-2 flex items-center justify-center gap-2"
+                            style="color:#ff6b6b;">
+                            <i data-lucide="alert-triangle" style="width:15px;height:15px;stroke:#ff6b6b;"></i>
+                            Zona de peligro
+                        </h4>
+                        <p class="text-[.82rem] text-white/45 mb-4 leading-relaxed">
+                            Borrar tu cuenta desvinculará a tu pareja y eliminará todo tu historial de ciclo, eventos y
+                            gustos de forma irreversible.
+                        </p>
+                        <button id="btn-delete-account"
+                            class="w-full py-3.5 rounded-full flex items-center justify-center gap-1.5 text-[.76rem] uppercase tracking-[.1em] font-medium transition-all"
+                            style="background:linear-gradient(135deg,rgba(255,74,74,.14),rgba(180,14,14,.10)); border:1px solid rgba(255,74,74,.28); color:#ff7070;">
+                            <i data-lucide="heart-crack" style="width:14px;height:14px;"></i>
+                            Eliminar cuenta
+                        </button>
+                    </div>
+
+                    <div class="mt-8 text-center">
+                        <button id="btn-logout"
+                            class="text-white/40 hover:text-white/80 text-[.75rem] uppercase tracking-widest flex items-center justify-center gap-2 mx-auto transition-all bg-transparent border-none cursor-pointer">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                            Cerrar Sesión
+                        </button>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="text-center">
+                <span class="text-[10px] text-white/60">Designed and developed with ❤️ by Ing Daniel SO. For Camila
+                    C.</span>
+            </div>
+        </section>
+    </div>
+
+
+    <!-- Modal de Registro de Eventos -->
+    <div id="event-modal"
+        class="modal-overlay fixed inset-0 bg-black/65 backdrop-blur-lg z-[2000] items-center justify-center p-4">
+        <div class="modal-content w-full max-w-[420px] rounded-[32px] px-6 pt-8 pb-10 animate-scaleIn"
+            style="background:rgba(12,10,20,.95); backdrop-filter:blur(40px); border:1px solid rgba(255,255,255,.1); box-shadow: 0 30px 100px rgba(0,0,0,0.8);">
+
+            <div class="flex justify-between items-start mb-4">
+                <div class="text-left">
+                    <h3 id="modal-date-title" class="gradient-text font-display font-light text-[1.5rem] leading-tight">
+                    </h3>
+                    <p class="text-[.82rem] text-white/45 mt-1">Registra tu momento</p>
+                </div>
+                <button onclick="document.getElementById('event-modal').classList.remove('active')"
+                    class="glass w-8 h-8 rounded-full flex items-center justify-center border border-white/10 text-white/40 hover:text-white/80 transition-all">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <div class="event-options grid grid-cols-2 gap-3 my-6">
+                <button
+                    class="event-btn c-red flex flex-col items-center gap-2.5 py-5 px-3 rounded-2xl bg-white/[.04] border border-white/7 text-[.78rem] tracking-[.04em] text-white/50 transition-all hover:bg-white/10 hover:border-white/20 hover:-translate-y-1"
+                    data-type="period">
+                    <div class="event-icon bg-red-500/10 w-10 h-10 rounded-full flex items-center justify-center"><i
+                            data-lucide="droplets" class="w-5 h-5 text-red-400"></i></div>
+                    Menstruación
+                </button>
+                <button
+                    class="event-btn c-pink flex flex-col items-center gap-2.5 py-5 px-3 rounded-2xl bg-white/[.04] border border-white/7 text-[.78rem] tracking-[.04em] text-white/50 transition-all hover:bg-white/10 hover:border-white/20 hover:-translate-y-1"
+                    data-type="intimacy">
+                    <div class="event-icon bg-pink-500/10 w-10 h-10 rounded-full flex items-center justify-center"><i
+                            data-lucide="heart" class="w-5 h-5 text-pink-400"></i></div>
+                    Intimidad
+                </button>
+                <button
+                    class="event-btn c-blue flex flex-col items-center gap-2.5 py-5 px-3 rounded-2xl bg-white/[.04] border border-white/7 text-[.78rem] tracking-[.04em] text-white/50 transition-all hover:bg-white/10 hover:border-white/20 hover:-translate-y-1"
+                    data-type="symptom">
+                    <div class="event-icon bg-blue-500/10 w-10 h-10 rounded-full flex items-center justify-center"><i
+                            data-lucide="thermometer" class="w-5 h-5 text-blue-400"></i></div>
+                    Síntomas
+                </button>
+                <button
+                    class="event-btn c-purple flex flex-col items-center gap-2.5 py-5 px-3 rounded-2xl bg-white/[.04] border border-white/7 text-[.78rem] tracking-[.04em] text-white/50 transition-all hover:bg-white/10 hover:border-white/20 hover:-translate-y-1"
+                    data-type="note">
+                    <div class="event-icon bg-purple-500/10 w-10 h-10 rounded-full flex items-center justify-center"><i
+                            data-lucide="notebook-pen" class="w-5 h-5 text-purple-400"></i></div>
+                    Nota
+                </button>
+            </div>
+
+            <div id="event-extra-inputs" class="mt-4 animate-fadeIn" style="display:none;">
+                <input type="text" id="event-value" placeholder="¿Algún detalle extra?..." autocomplete="off"
+                    class="w-full px-5 py-4 rounded-xl bg-white/[.04] border border-white/7 text-white/90 text-[.9rem] font-light outline-none focus:border-primary/40 focus:bg-white/[.07] transition-all placeholder:text-white/25">
+                <button id="btn-confirm-event"
+                    class="mt-4 w-full py-4 rounded-full bg-primary/20 border border-primary/30 text-primary text-[.8rem] uppercase tracking-[.1em] font-semibold hover:bg-primary/30 hover:border-primary/50 transition-all">
+                    Confirmar Registro
+                </button>
+            </div>
+
+            <button id="btn-close-modal"
+                class="mt-3 w-full py-3 text-white/25 text-[.75rem] uppercase tracking-widest hover:text-white/60 transition-all bg-transparent border-none cursor-pointer">
+                Cerrar
+            </button>
+        </div>
+    </div>
+
+    <!-- Cosmos background -->
+    <script src="/assets/js/cosmos.js"></script>
+
+    <!-- Lucide icons -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); });
+        window._refreshIcons = () => { if (window.lucide) lucide.createIcons(); };
+    </script>
+
+    <!-- Original app scripts (unchanged) -->
+    <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/timeline.js"></script>
+    <script src="/assets/js/calendar.js"></script>
+    <script src="/assets/js/game-selector.js"></script>
+    <script src="/assets/js/game.js"></script>
+    <script src="/assets/js/dare.js"></script>
+</body>
+
+</html>
