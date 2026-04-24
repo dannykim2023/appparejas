@@ -488,6 +488,7 @@ function setupEvents() {
             const code = document.getElementById('partner-code-input').value.trim().toUpperCase();
             if (!code || code.length !== 6) return showNotification('Código inválido', 'error');
             
+            btnConnect.disabled = true;
             try {
                 const res = await fetch(`${API_URL}/connect-partner`, {
                     method: 'POST',
@@ -507,6 +508,8 @@ function setupEvents() {
                 }
             } catch (e) {
                 showNotification('Error de conexión', 'error');
+            } finally {
+                btnConnect.disabled = false;
             }
         });
     }
@@ -517,6 +520,7 @@ function setupEvents() {
         btnAnniv.addEventListener('click', async () => {
             const dt = document.getElementById('anniversary-date-input').value;
             if(!dt) return showNotification('Elige la fecha');
+            btnAnniv.disabled = true;
             try {
                 const res = await fetch(`${API_URL}/set-anniversary`, {
                     method: 'POST',
@@ -530,6 +534,8 @@ function setupEvents() {
                 }
             } catch (e) {
                 showNotification('Error guardando fecha', 'error');
+            } finally {
+                btnAnniv.disabled = false;
             }
         });
     }
@@ -543,6 +549,7 @@ function setupEvents() {
             const birth = document.getElementById('prof-birth').value;
             const gift = document.getElementById('prof-gift').value;
 
+            btnUpdate.disabled = true;
             try {
                 const res = await fetch(`${API_URL}/update-profile`, {
                     method: 'POST',
@@ -557,6 +564,8 @@ function setupEvents() {
                 }
             } catch (e) {
                 showNotification('Fallo de red', 'error');
+            } finally {
+                btnUpdate.disabled = false;
             }
         });
     }
