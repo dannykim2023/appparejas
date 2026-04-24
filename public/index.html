@@ -425,7 +425,7 @@
 
 <body class="font-sans font-light antialiased min-h-screen flex justify-center overflow-x-hidden"
     style="background:radial-gradient(circle at 20% 20%,rgba(80,40,140,.12) 0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(140,40,80,.08) 0%,transparent 50%),#060608; background-attachment:fixed; color:rgba(255,255,255,.92);">
-    <div id="notification-wrapper" class="fixed top-5 right-5 z-[10000] space-y-3 p-4 rounded-[32px] bg-black/20"></div>
+    <div id="notification-wrapper" class="fixed top-5 right-5 z-[10000] space-y-3 p-4 rounded-[32px]"></div>
     <canvas id="cosmos-canvas"></canvas>
     <div class="app-container w-full max-w-[480px] min-h-screen pb-12 relative z-10">
 
@@ -795,19 +795,23 @@
                 <!-- OVERLAY: Invitación de juego del partner -->
                 <div id="game-invite-overlay"
                     style="display:none; position:fixed; inset:0; z-index:11000; background:rgba(6,5,10,.85); backdrop-filter:blur(24px); align-items:center; justify-content:center; padding:24px;">
-                    <div class="glass rounded-[40px] p-10 text-center animate-scaleIn" style="max-width:380px; width:100%; border:1px solid rgba(255,255,255,.1); box-shadow: 0 40px 120px rgba(0,0,0,0.9);">
-                        <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+                    <div class="glass rounded-[40px] p-10 text-center animate-scaleIn"
+                        style="max-width:380px; width:100%; border:1px solid rgba(255,255,255,.1); box-shadow: 0 40px 120px rgba(0,0,0,0.9);">
+                        <div
+                            class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
                             <i data-lucide="gamepad-2" class="w-10 h-10 text-primary"></i>
                         </div>
-                        <h3 id="game-invite-title" class="font-display text-[1.8rem] leading-tight text-white mb-3">¡Es hora de jugar!</h3>
+                        <h3 id="game-invite-title" class="font-display text-[1.8rem] leading-tight text-white mb-3">¡Es
+                            hora de jugar!</h3>
                         <p id="game-invite-desc" class="text-[.95rem] text-white/50 mb-8 leading-relaxed"></p>
-                        
+
                         <div class="flex flex-col gap-3">
                             <button id="btn-invite-join"
                                 class="w-full py-4 rounded-full bg-primary text-black text-[.85rem] uppercase tracking-[.15em] font-bold hover:bg-white hover:scale-[1.02] transition-all shadow-lg shadow-primary/20">
                                 ACEPTAR Y JUGAR
                             </button>
-                            <button id="btn-invite-dismiss" onclick="document.getElementById('game-invite-overlay').style.display='none'"
+                            <button id="btn-invite-dismiss"
+                                onclick="document.getElementById('game-invite-overlay').style.display='none'"
                                 class="w-full py-3 text-white/30 text-[.75rem] uppercase tracking-widest hover:text-white/70 transition-all bg-transparent border-none cursor-pointer">
                                 Quizás después
                             </button>

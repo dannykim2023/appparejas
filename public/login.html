@@ -55,7 +55,7 @@
         document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); });
     </script>
     <div class="app-container" style="display:flex; justify-content:center; align-items:center;">
-        <div id="notification-wrapper" class="fixed top-5 right-5 z-[10000] space-y-3 p-4 rounded-[32px] bg-black/20">
+        <div id="notification-wrapper" class="fixed top-5 right-5 z-[10000] space-y-3 p-4 rounded-[32px]">
         </div>
 
         <section id="auth-section" class="screen active" style="width:100%;">
@@ -73,12 +73,12 @@
                     <h1 class="gradient-text">Bienvenido</h1>
                     <p class="subtitle mb-4">Entra para sincronizar con tu pareja.</p>
 
-                    <div class="input-group text-left mt-4">
+                    <div class="input-group text-left mt-4 w-full">
                         <label style="font-weight:bold; margin-left: 5px;">Email</label>
                         <input type="email" id="login-email" class="fat-input mt-2" placeholder="tu@email.com"
                             autocomplete="email">
                     </div>
-                    <div class="input-group text-left mt-3">
+                    <div class="input-group text-left mt-3 w-full">
                         <label style="font-weight:bold; margin-left: 5px;">Contraseña</label>
                         <input type="password" id="login-password" class="fat-input mt-2" placeholder="••••••••">
                     </div>
@@ -198,7 +198,7 @@
                             <input type="hidden" id="user-gender">
                         </div>
 
-                        <div class="input-group text-left mt-4">
+                        <div class="input-group text-left mt-4 w-full">
                             <label style="font-weight:bold; margin-left: 5px;">¿Cuándo es tu cumpleaños?</label>
                             <input type="date" id="user-birth" class="fat-input mt-2">
                         </div>
@@ -294,7 +294,7 @@
                 </div> <!-- /register-view -->
 
             </div>
-            <div class="footer-note mt-3 text-center" style="font-size:0.8em; color:var(--text-secondary);">Desarrollado
+            <div class="footer-note mt-3 text-center" style="font-size:0.8em; color:var(--text-secondary);">
                 Designed and developed with ❤️ by Ing Daniel SO. For Camila C.</div>
         </section>
     </div>
