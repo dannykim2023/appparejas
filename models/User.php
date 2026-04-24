@@ -78,7 +78,11 @@ class User {
         $partner = self::findByCode($partnerCode);
         if(!$partner) return false;
         
+        // No conectar con uno mismo
         if($partner['id'] == $userId) return false; 
+        
+        // No conectar si el partner ya tiene pareja
+        if(!empty($partner['partner_id'])) return false;
         
         $partnerId = $partner['id'];
         

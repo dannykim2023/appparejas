@@ -1,151 +1,234 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" style="background: #060608; color: #fff;">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#060608">
     <title>SincroParejas - Registro</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/public/assets/css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Fast Redirect is now handled safely by app.js to prevent redirect loops.
+    </script>
     <style>
-        .svg-icon { width: 48px; height: 48px; margin: 0 auto; color: var(--primary-color); }
-        .role-icon { width: 40px; height: 40px; margin: 0 auto 8px auto; }
-        .hidden { display: none !important; }
-        .fade-in { animation: fadeIn 0.4s ease forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .svg-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto;
+            color: var(--primary-color);
+        }
+
+        .role-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 8px auto;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
+
 <body>
     <script>
         document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); });
     </script>
     <div class="app-container" style="display:flex; justify-content:center; align-items:center;">
-        <div id="notification-wrapper"></div>
+        <div id="notification-wrapper" class="fixed top-5 right-5 z-[10000] space-y-3 p-4 rounded-[32px] bg-black/20">
+        </div>
 
         <section id="auth-section" class="screen active" style="width:100%;">
-            <div class="glass-card text-center onboarding-wizard fade-in" style="max-width: 450px; padding: 35px 25px; margin:0 auto;">
-                
+            <div class="glass-card text-center onboarding-wizard fade-in"
+                style="max-width: 450px; padding: 35px 25px; margin:0 auto;">
+
                 <!-- LOGIN VIEW -->
-                <div id="login-view" class="hidden">
+                <div id="login-view">
                     <div class="step-icon mb-2">
-                        <svg class="svg-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                        <svg class="svg-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
                     </div>
                     <h1 class="gradient-text">Bienvenido</h1>
                     <p class="subtitle mb-4">Entra para sincronizar con tu pareja.</p>
-                    
+
                     <div class="input-group text-left mt-4">
                         <label style="font-weight:bold; margin-left: 5px;">Email</label>
-                        <input type="email" id="login-email" class="fat-input mt-2" placeholder="tu@email.com" autocomplete="email">
+                        <input type="email" id="login-email" class="fat-input mt-2" placeholder="tu@email.com"
+                            autocomplete="email">
                     </div>
                     <div class="input-group text-left mt-3">
                         <label style="font-weight:bold; margin-left: 5px;">Contraseña</label>
                         <input type="password" id="login-password" class="fat-input mt-2" placeholder="••••••••">
                     </div>
-                    
-                    <button id="btn-do-login" class="btn-primary mt-4" style="font-size:1.1em; padding:18px; width:100%;">Entrar ➔</button>
-                    
+
+                    <button id="btn-do-login" class="btn-primary mt-4"
+                        style="font-size:1.1em; padding:18px; width:100%;">Entrar ➔</button>
+
                     <p class="mt-4 text-sm text-white/50">
-                        ¿No tienes cuenta? <a href="#" onclick="toggleAuthMode('register')" class="text-primary underline">Regístrate aquí</a>
+                        ¿No tienes cuenta? <a href="#" onclick="toggleAuthMode('register')"
+                            class="text-primary underline">Regístrate aquí</a>
                     </p>
                 </div>
 
                 <!-- REGISTER VIEW (WIZARD) -->
-                <div id="register-view">
+                <div id="register-view" class="hidden">
                     <!-- PASO 1: Hola -->
-                    <div class="wizard-step step-active" id="step-1">
+                    <div class="wizard-step step-active" id="step-1" style="display:block;">
                         <div class="step-icon mb-2">
-                            <svg class="svg-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <svg class="svg-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
                         </div>
                         <h1 class="gradient-text">¡Hola!</h1>
-                        <p class="subtitle mb-3" style="font-size:1em;">Estás a un paso de sincronizar tu relación maravillosamente.</p>
-                        
+                        <p class="subtitle mb-3" style="font-size:1em;">Estás a un paso de sincronizar tu relación
+                            maravillosamente.</p>
+
                         <div class="input-group text-left mt-4">
                             <label style="font-weight:bold; margin-left: 5px;">¿Cómo te llamas?</label>
-                            <input type="text" id="user-name" class="fat-input mt-2" placeholder="Tu nombre, apodo de cariño..." autocomplete="off">
+                            <input type="text" id="user-name" class="fat-input mt-2"
+                                placeholder="Tu nombre, apodo de cariño..." autocomplete="off">
                         </div>
-                        
-                        <button class="btn-primary mt-4 btn-next-step" data-target="step-2" style="font-size:1.1em; padding:18px;">Continuar ➔</button>
-                        
+
+                        <button type="button" class="btn-primary mt-4" onclick="nextStep(this, 'step-2')"
+                            style="font-size:1.1em; padding:18px;">Continuar ➔</button>
+
                         <p class="mt-4 text-sm text-white/50">
-                            ¿Ya tienes cuenta? <a href="#" onclick="toggleAuthMode('login')" class="text-primary underline">Inicia sesión</a>
+                            ¿Ya tienes cuenta? <a href="#" onclick="toggleAuthMode('login')"
+                                class="text-primary underline">Inicia sesión</a>
                         </p>
-                        
-                        <div class="step-dots mt-4" style="margin-bottom:-10px;"><span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+
+                        <div class="step-dots mt-4" style="margin-bottom:-10px;"><span class="dot active"></span><span
+                                class="dot"></span><span class="dot"></span><span class="dot"></span><span
+                                class="dot"></span></div>
                     </div>
 
                     <!-- PASO 2: Credenciales -->
                     <div class="wizard-step" id="step-2" style="display:none;">
                         <div class="step-icon mb-2">
-                            <svg class="svg-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                            <svg class="svg-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
                         </div>
                         <h2 class="gradient-text">Tus Credenciales</h2>
-                        <p class="subtitle mb-3" style="font-size:1em;">Necesitas estos datos para volver a entrar a tu cuenta.</p>
+                        <p class="subtitle mb-3" style="font-size:1em;">Necesitas estos datos para volver a entrar a tu
+                            cuenta.</p>
 
                         <div class="input-group text-left mt-3">
                             <label style="font-weight:bold; margin-left: 5px;">Email</label>
-                            <input type="email" id="user-email" class="fat-input mt-2" placeholder="tu@email.com" autocomplete="email">
+                            <input type="email" id="user-email" class="fat-input mt-2" placeholder="tu@email.com"
+                                autocomplete="email">
                         </div>
 
                         <div class="input-group text-left mt-3">
                             <label style="font-weight:bold; margin-left: 5px;">Crea una contraseña</label>
-                            <input type="password" id="user-password" class="fat-input mt-2" placeholder="Al menos 6 caracteres">
+                            <input type="password" id="user-password" class="fat-input mt-2"
+                                placeholder="Al menos 6 caracteres">
                         </div>
 
                         <div class="flex-inputs mt-4">
-                            <button class="btn-secondary btn-prev-step" data-target="step-1" style="flex:0.4; padding:18px;">Atrás</button>
-                            <button class="btn-primary btn-next-step" data-target="step-3" style="flex:1; padding:18px; font-size:1.1em;">Siguiente ➔</button>
+                            <button type="button" class="btn-secondary" onclick="prevStep(this, 'step-1')"
+                                style="flex:0.4; padding:18px;">Atrás</button>
+                            <button type="button" class="btn-primary" onclick="validateEmailAndNext(this, 'step-3')"
+                                style="flex:1; padding:18px; font-size:1.1em;">Siguiente ➔</button>
                         </div>
-                        <div class="step-dots mt-4" style="margin-bottom:-10px;"><span class="dot"></span><span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+                        <div class="step-dots mt-4" style="margin-bottom:-10px;"><span class="dot"></span><span
+                                class="dot active"></span><span class="dot"></span><span class="dot"></span><span
+                                class="dot"></span></div>
                     </div>
 
                     <!-- PASO 3: Rol y Nacimiento -->
                     <div class="wizard-step" id="step-3" style="display:none;">
                         <div class="step-icon mb-2">
-                            <svg class="svg-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                            <svg class="svg-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
                         </div>
                         <h2 class="gradient-text">Tu Perfil</h2>
                         <p class="subtitle mb-3" style="font-size:1em;">Definamos cómo interactuarás en la app.</p>
-                        
+
                         <div class="input-group text-left mt-3">
                             <label style="font-weight:bold; margin-left: 5px;">Selecciona tu rol en la Pareja</label>
                             <div class="role-cards mt-2">
                                 <div class="role-card" data-role="M" onclick="selectRole('M', this)">
-                                    <svg class="role-icon" fill="none" stroke="#f43f5e" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                                    <h4 class="gradient-text" style="background:#f43f5e; -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Mujer</h4>
+                                    <svg class="role-icon" fill="none" stroke="#f43f5e" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                    <h4 class="gradient-text"
+                                        style="background:#f43f5e; -webkit-background-clip:text; -webkit-text-fill-color:transparent;">
+                                        Mujer</h4>
                                     <small>Registraré ciclos</small>
                                 </div>
                                 <div class="role-card" data-role="H" onclick="selectRole('H', this)">
-                                    <svg class="role-icon" fill="none" stroke="#3b82f6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                                    <h4 class="gradient-text" style="background:#3b82f6; -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Hombre</h4>
+                                    <svg class="role-icon" fill="none" stroke="#3b82f6" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                    </svg>
+                                    <h4 class="gradient-text"
+                                        style="background:#3b82f6; -webkit-background-clip:text; -webkit-text-fill-color:transparent;">
+                                        Hombre</h4>
                                     <small>O acompañante</small>
                                 </div>
                             </div>
                             <input type="hidden" id="user-gender">
                         </div>
-                        
+
                         <div class="input-group text-left mt-4">
                             <label style="font-weight:bold; margin-left: 5px;">¿Cuándo es tu cumpleaños?</label>
                             <input type="date" id="user-birth" class="fat-input mt-2">
                         </div>
-                        
+
                         <div class="flex-inputs mt-4">
-                            <button class="btn-secondary btn-prev-step" data-target="step-2" style="flex:0.4; padding:18px;">Atrás</button>
-                            <button class="btn-primary btn-next-step" data-target="step-4" style="flex:1; padding:18px; font-size:1.1em;">Siguiente ➔</button>
+                            <button type="button" class="btn-secondary" onclick="prevStep(this, 'step-2')"
+                                style="flex:0.4; padding:18px;">Atrás</button>
+                            <button type="button" class="btn-primary" onclick="nextStep(this, 'step-4')"
+                                style="flex:1; padding:18px; font-size:1.1em;">Siguiente ➔</button>
                         </div>
-                        <div class="step-dots mt-4" style="margin-bottom:-10px;"><span class="dot"></span><span class="dot"></span><span class="dot active"></span><span class="dot"></span><span class="dot"></span></div>
+                        <div class="step-dots mt-4" style="margin-bottom:-10px;"><span class="dot"></span><span
+                                class="dot"></span><span class="dot active"></span><span class="dot"></span><span
+                                class="dot"></span></div>
                     </div>
 
                     <!-- PASO 4: Gustos -->
                     <div class="wizard-step" id="step-4" style="display:none;">
                         <div class="step-icon mb-2">
-                            <svg class="svg-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                            <svg class="svg-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                            </svg>
                         </div>
                         <h2 class="gradient-text">Favoritos</h2>
-                        <p class="subtitle mb-3" style="font-size:1em;">Para que a tu pareja nunca se le olvide qué regalarte.</p>
-                        
+                        <p class="subtitle mb-3" style="font-size:1em;">Para que a tu pareja nunca se le olvide qué
+                            regalarte.</p>
+
                         <div class="input-group text-left mt-3">
-                            <p style="font-size:0.85em; color:#ccc; margin-bottom: 12px; margin-left: 5px;">Toca tus favoritos o escríbelos:</p>
+                            <p style="font-size:0.85em; color:#ccc; margin-bottom: 12px; margin-left: 5px;">Toca tus
+                                favoritos o escríbelos:</p>
                             <div id="quick-tags" class="quick-tags mb-3">
                                 <span class="tag-opt" onclick="toggleTag(this)">Flores</span>
                                 <span class="tag-opt" onclick="toggleTag(this)">Chocolates</span>
@@ -157,46 +240,120 @@
                                 <span class="tag-opt" onclick="toggleTag(this)">Cenas</span>
                                 <span class="tag-opt" onclick="toggleTag(this)">Videojuegos</span>
                             </div>
-                            <textarea id="user-gift" rows="3" class="fat-input" placeholder="Ej: Quiero tulipanes amarillos y sushi..."></textarea>
+                            <textarea id="user-gift" rows="3" class="fat-input"
+                                placeholder="Ej: Quiero tulipanes amarillos y sushi..."></textarea>
                         </div>
 
                         <div class="flex-inputs mt-4">
-                            <button class="btn-secondary btn-prev-step" data-target="step-3" style="flex:0.4; padding:18px;">Atrás</button>
-                            <button class="btn-primary btn-next-step" data-target="step-5" style="flex:1; padding:18px; font-size:1.1em;">Siguiente ➔</button>
+                            <button type="button" class="btn-secondary" onclick="prevStep(this, 'step-3')"
+                                style="flex:0.4; padding:18px;">Atrás</button>
+                            <button type="button" class="btn-primary" onclick="nextStep(this, 'step-5')"
+                                style="flex:1; padding:18px; font-size:1.1em;">Siguiente ➔</button>
                         </div>
-                        <div class="step-dots mt-4" style="margin-bottom:-10px;"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot active"></span><span class="dot"></span></div>
+                        <div class="step-dots mt-4" style="margin-bottom:-10px;"><span class="dot"></span><span
+                                class="dot"></span><span class="dot"></span><span class="dot active"></span><span
+                                class="dot"></span></div>
                     </div>
 
                     <!-- PASO 5: Vincular -->
                     <div class="wizard-step" id="step-5" style="display:none;">
                         <div class="step-icon mb-2">
-                            <svg class="svg-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+                            <svg class="svg-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                            </svg>
                         </div>
                         <h2 class="gradient-text">¿Tienes Código?</h2>
-                        <p class="subtitle mb-3" style="font-size:1em;">Si tu pareja ya tiene la app, pega su código aquí. Si no, déjalo en blanco por ahora.</p>
-                        
+                        <p class="subtitle mb-3" style="font-size:1em;">Si tu pareja ya tiene la app, pega su código
+                            aquí. Si no, déjalo en blanco por ahora.</p>
+
                         <div class="input-group text-left mt-3">
-                            <input type="text" id="partner-code-onboarding" class="fat-input" placeholder="Ej: A1B2C3" maxlength="6" style="text-transform: uppercase; text-align:center; letter-spacing: 2px;">
+                            <input type="text" id="partner-code-onboarding" class="fat-input" placeholder="Ej: A1B2C3"
+                                maxlength="6"
+                                style="text-transform: uppercase; text-align:center; letter-spacing: 2px;">
                         </div>
 
                         <div class="flex flex-col gap-3 mt-4">
                             <div class="flex-inputs">
-                                <button class="btn-secondary btn-prev-step" data-target="step-4" style="flex:0.4; padding:18px;">Atrás</button>
-                                <button id="btn-register" class="btn-primary" style="flex:1; padding:18px; font-size:1.1em; background: linear-gradient(135deg, #c9a9ff, #b286ff); box-shadow: 0 5px 15px rgba(201, 169, 255, 0.2);">✨ FINALIZAR</button>
+                                <button type="button" class="btn-secondary" onclick="prevStep(this, 'step-4')"
+                                    style="flex:0.4; padding:18px;">Atrás</button>
+                                <button type="button" id="btn-register" onclick="performRegistration()"
+                                    class="btn-primary"
+                                    style="flex:1; padding:18px; font-size:1.1em; background: linear-gradient(135deg, #c9a9ff, #b286ff); box-shadow: 0 5px 15px rgba(201, 169, 255, 0.2);">✨
+                                    FINALIZAR</button>
                             </div>
-                            <button id="btn-skip-code" class="text-white/50 hover:text-white/90 text-sm mt-1 mb-2 underline transition-all bg-transparent border-none cursor-pointer">No tengo código, omitir y entrar</button>
+                            <button type="button" id="btn-skip-code" onclick="performRegistration()"
+                                class="text-white/50 hover:text-white/90 text-sm mt-1 mb-2 underline transition-all bg-transparent border-none cursor-pointer">No
+                                tengo código, omitir y entrar</button>
                         </div>
-                        <div class="step-dots mt-4" style="margin-bottom:-10px;"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot active"></span></div>
+                        <div class="step-dots mt-4" style="margin-bottom:-10px;"><span class="dot"></span><span
+                                class="dot"></span><span class="dot"></span><span class="dot"></span><span
+                                class="dot active"></span></div>
                     </div>
 
                 </div> <!-- /register-view -->
 
             </div>
-            <div class="footer-note mt-3 text-center" style="font-size:0.8em; color:var(--text-secondary);">Desarrollado con ❤️ para Parejas</div>
+            <div class="footer-note mt-3 text-center" style="font-size:0.8em; color:var(--text-secondary);">Desarrollado
+                Designed and developed with ❤️ by Ing Daniel SO. For Camila C.</div>
         </section>
     </div>
 
     <script>
+        // Navigation between wizard steps
+        function nextStep(btn, targetStep) {
+            // Find current step
+            let currentStep = btn.closest('.wizard-step');
+            if (!currentStep) return;
+
+            const stepId = currentStep.id;
+
+            // Validations per step
+            if (stepId === 'step-1') {
+                const name = document.getElementById('user-name').value.trim();
+                if (!name) {
+                    alert('Por favor dinos tu nombre');
+                    return;
+                }
+            } else if (stepId === 'step-2') {
+                const email = document.getElementById('user-email').value.trim();
+                const pass = document.getElementById('user-password').value;
+                if (!email || !pass) {
+                    alert('Por favor completa email y contraseña');
+                    return;
+                }
+                if (pass.length < 6) {
+                    alert('La contraseña debe tener al menos 6 caracteres');
+                    return;
+                }
+            } else if (stepId === 'step-3') {
+                const gender = document.getElementById('user-gender').value;
+                const birth = document.getElementById('user-birth').value;
+                if (!gender || !birth) {
+                    alert('Selecciona tu rol y fecha de nacimiento');
+                    return;
+                }
+            } else if (stepId === 'step-4') {
+                const gift = document.getElementById('user-gift').value.trim();
+                if (!gift) {
+                    alert('Dinos al menos una cosa que te guste');
+                    return;
+                }
+            }
+
+            // Hide all steps
+            document.querySelectorAll('.wizard-step').forEach(s => s.style.display = 'none');
+            // Show target
+            const target = document.getElementById(targetStep);
+            if (target) target.style.display = 'block';
+        }
+
+        function prevStep(btn, targetStep) {
+            document.querySelectorAll('.wizard-step').forEach(s => s.style.display = 'none');
+            const target = document.getElementById(targetStep);
+            if (target) target.style.display = 'block';
+        }
+
         function toggleAuthMode(mode) {
             const loginView = document.getElementById('login-view');
             const registerView = document.getElementById('register-view');
@@ -208,9 +365,35 @@
                 registerView.classList.remove('hidden');
                 registerView.classList.add('fade-in');
                 loginView.classList.add('hidden');
+
+                // Asegurar que el paso 1 esté visible
+                document.querySelectorAll('.wizard-step').forEach(s => s.style.display = 'none');
+                const step1 = document.getElementById('step-1');
+                if (step1) step1.style.display = 'block';
             }
         }
+
+        function selectRole(role, el) {
+            document.querySelectorAll('.role-card').forEach(opt => opt.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById('user-gender').value = role;
+        }
+
+        const selectedTags = [];
+        function toggleTag(el) {
+            const tag = el.innerText;
+            const idx = selectedTags.indexOf(tag);
+            if (idx > -1) {
+                selectedTags.splice(idx, 1);
+                el.classList.remove('active');
+            } else {
+                selectedTags.push(tag);
+                el.classList.add('active');
+            }
+            document.getElementById('user-gift').value = selectedTags.join(', ');
+        }
     </script>
-    <script src="/assets/js/app.js"></script>
+    <script src="/public/assets/js/app.js"></script>
 </body>
+
 </html>

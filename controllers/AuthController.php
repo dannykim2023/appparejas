@@ -19,10 +19,43 @@ class AuthController {
 
         $user = User::create($data['name'], $data['email'], $data['password'], $gender, $birth, $pref);
         if($user) {
+            // Guardar sesión PHP y cookie automáticamente
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_name'] = $user['name'];
+            
+            setcookie('user_id', $user['id'], [
+                'expires' => time() + (86400 * 30),
+                'path' => '/',
+                'httponly' => false,
+                'samesite' => 'Lax'
+            ]);
+            setcookie('user_name', $user['name'], [
+                'expires' => time() + (86400 * 30),
+                'path' => '/',
+                'httponly' => false,
+                'samesite' => 'Lax'
+            ]);
+            
             Response::success($user);
         } else {
             Response::error('Error al crear usuario', 500);
         }
+    }
+
+    public function checkEmail($data) {
+        if(empty($data['email'])) {
+            Response::error('El correo electrónico es requerido', 400);
+        }
+
+        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            Response::error('El formato del correo es inválido', 400);
+        }
+
+        if (User::findByEmail($data['email'])) {
+            Response::error('Este correo ya está registrado. Intenta iniciar sesión.', 400);
+        }
+        
+        Response::success(['available' => true]);
     }
 
     public function login($data) {
@@ -32,6 +65,24 @@ class AuthController {
 
         $user = User::authenticate($data['email'], $data['password']);
         if($user) {
+            // Guardar sesión PHP y cookie
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_name'] = $user['name'];
+            
+            // Cookie con opciones correctas
+            setcookie('user_id', $user['id'], [
+                'expires' => time() + (86400 * 30),
+                'path' => '/',
+                'httponly' => false,
+                'samesite' => 'Lax'
+            ]);
+            setcookie('user_name', $user['name'], [
+                'expires' => time() + (86400 * 30),
+                'path' => '/',
+                'httponly' => false,
+                'samesite' => 'Lax'
+            ]);
+            
             // No enviar la contraseña al frontend
             unset($user['password']);
             Response::success($user);

@@ -1,5 +1,20 @@
 <?php
-// Configuración de cabeceras para CORS y JSON
+/**
+ * SincroParejas - Router Principal
+ * Este archivo centraliza todas las peticiones y sirve como punto de entrada.
+ */
+
+// Iniciar sesión para autenticación
+session_start();
+
+// Verificar autenticación y forzar estado por cookie globalmente
+if (empty($_COOKIE['user_id']) && isset($_SESSION['user_id'])) {
+    unset($_SESSION['user_id']);
+    session_destroy();
+}
+$isLoggedIn = !empty($_COOKIE['user_id']);
+
+// 1. Configuración de cabeceras
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
@@ -9,9 +24,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
+// 2. Obtener la ruta limpia
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-// 1. Manejar API
+// 3. Manejar ARCHIVOS ESTÁTICOS primero
+$publicDir = __DIR__ . DIRECTORY_SEPARATOR . 'public';
+
+// Si la URL empieza con /assets o /public, intentamos servir el archivo físico
+if (strpos($requestUri, '/assets/') === 0 || strpos($requestUri, '/public/') === 0) {
+    // Si viene como /assets/..., buscamos en public/assets/...
+    // Si viene como /public/assets/..., buscamos en public/assets/...
+    $cleanUri = str_replace('/public/', '/', $requestUri);
+    $filePath = $publicDir . str_replace('/', DIRECTORY_SEPARATOR, $cleanUri);
+
+    if (is_file($filePath)) {
+        $ext = pathinfo($filePath, PATHINFO_EXTENSION);
+        $mimeTypes = [
+            'css'  => 'text/css',
+            'js'   => 'application/javascript',
+            'png'  => 'image/png',
+            'jpg'  => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'ico'  => 'image/x-icon',
+            'svg'  => 'image/svg+xml',
+            'webp' => 'image/webp',
+            'json' => 'application/json'
+        ];
+        
+        if (isset($mimeTypes[$ext])) {
+            header('Content-Type: ' . $mimeTypes[$ext]);
+        }
+        
+        // Cache headers para producción
+        header('Cache-Control: public, max-age=3600');
+        
+        readfile($filePath);
+        exit;
+    }
+}
+
+
+// 4. Carga de dependencias y controladores
+require_once 'utils/Response.php';
+require_once 'controllers/AuthController.php';
+require_once 'controllers/CycleController.php';
+require_once 'controllers/GameController.php';
+require_once 'controllers/EventController.php';
+require_once 'controllers/DareController.php';
+require_once 'controllers/HomeController.php';
+
+// 5. Enrutamiento de API
 if (strpos($requestUri, '/api/') !== false) {
     $data = [];
     if ($_SERVER['REQUEST_METHOD'] === 'POST' || $_SERVER['REQUEST_METHOD'] === 'PUT') {
@@ -21,18 +83,35 @@ if (strpos($requestUri, '/api/') !== false) {
         }
     }
 
-    require_once 'controllers/AuthController.php';
-    require_once 'controllers/CycleController.php';
-    require_once 'controllers/GameController.php';
-    require_once 'controllers/EventController.php';
-    require_once 'controllers/DareController.php';
-    require_once 'utils/Response.php';
-
     $endpoint = substr($requestUri, strpos($requestUri, '/api/'));
 
+    // Endpoints públicos
+    $publicEndpoints = ['/api/login', '/api/register', '/api/logout', '/api/check-email'];
+    
+    if (!in_array($endpoint, $publicEndpoints) && !$isLoggedIn) {
+        Response::error('No autorizado. Por favor inicia sesión.', 401);
+    }
+
+    // Si está logueado, forzar el user_id de la sesión/cookie para seguridad en endpoints sensibles
+    $userIdFromSession = $_SESSION['user_id'] ?? $_COOKIE['user_id'] ?? null;
+    if ($userIdFromSession) {
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $_GET['user_id'] = $userIdFromSession;
+        } else {
+            $data['user_id'] = $userIdFromSession;
+        }
+    }
+
     switch ($endpoint) {
+        case '/api/check-email': (new AuthController())->checkEmail($data); break;
         case '/api/register': (new AuthController())->register($data); break;
         case '/api/login': (new AuthController())->login($data); break;
+        case '/api/logout': 
+            session_destroy(); 
+            setcookie('user_id', '', time() - 3600, '/');
+            setcookie('user_name', '', time() - 3600, '/');
+            Response::success(['status' => 'logged_out']);
+            break;
         case '/api/connect-partner': (new AuthController())->connectPartner($data); break;
         case '/api/me': (new AuthController())->me($_GET); break;
         case '/api/set-anniversary': (new AuthController())->setAnniversary($data); break;
@@ -52,41 +131,32 @@ if (strpos($requestUri, '/api/') !== false) {
     exit;
 }
 
-// 2. Manejar rutas virtuales (SPA)
-if ($requestUri === '/' || $requestUri === '/login' || $requestUri === '/register') {
-    $page = ($requestUri === '/' ) ? 'index.html' : 'login.html';
-    readfile(__DIR__ . '/public/' . $page);
-    exit;
-}
+// 6. Enrutamiento de Vistas (HomeController)
+$home = new HomeController();
 
-// 3. Manejar archivos estáticos
-$file = __DIR__ . '/public' . $requestUri;
-if (strpos($requestUri, '/public/') === 0) {
-    $file = __DIR__ . $requestUri;
-}
-
-if (is_file($file)) {
-    $ext = pathinfo($file, PATHINFO_EXTENSION);
-    $mimeTypes = [
-        'css' => 'text/css',
-        'js' => 'application/javascript',
-        'png' => 'image/png',
-        'jpg' => 'image/jpeg',
-        'ico' => 'image/x-icon',
-        'html' => 'text/html',
-        'svg' => 'image/svg+xml'
-    ];
-    if (isset($mimeTypes[$ext])) {
-        header('Content-Type: ' . $mimeTypes[$ext]);
-    }
-    readfile($file);
-    exit;
-}
-
-// 4. Fallback a index.html si no se encuentra nada
-if (file_exists(__DIR__ . '/public/index.html')) {
-    readfile(__DIR__ . '/public/index.html');
-} else {
-    http_response_code(404);
-    echo "<h1>404 Not Found</h1>";
+switch ($requestUri) {
+    case '/':
+    case '/index.html':
+        if (!$isLoggedIn) {
+            $home->login();
+        } else {
+            $home->index();
+        }
+        break;
+    case '/login':
+    case '/register':
+    case '/login.html':
+        if ($isLoggedIn && ($requestUri === '/login' || $requestUri === '/register' || $requestUri === '/login.html')) {
+            header('Location: /');
+            exit;
+        }
+        $home->login();
+        break;
+    default:
+        if (!$isLoggedIn) {
+            $home->login();
+        } else {
+            $home->index();
+        }
+        break;
 }

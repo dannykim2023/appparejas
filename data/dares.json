@@ -115,5 +115,98 @@
         "turn": 19,
         "order": [],
         "current_type": null
+    },
+    "24_25": {
+        "current_index": 5,
+        "p1_done": false,
+        "p2_done": false,
+        "started": true,
+        "started_by": 24,
+        "waiting": false,
+        "waiting_by": 24,
+        "turn": 25,
+        "order": [
+            {
+                "id": 12,
+                "type": "dare"
+            },
+            {
+                "id": 97,
+                "type": "truth"
+            },
+            {
+                "id": 3,
+                "type": "truth"
+            },
+            {
+                "id": 13,
+                "type": "dare"
+            },
+            {
+                "id": 6,
+                "type": "truth"
+            },
+            {
+                "id": 68,
+                "type": "dare"
+            },
+            {
+                "id": 94,
+                "type": "dare"
+            },
+            {
+                "id": 98,
+                "type": "truth"
+            },
+            {
+                "id": 80,
+                "type": "dare"
+            },
+            {
+                "id": 26,
+                "type": "truth"
+            },
+            {
+                "id": 40,
+                "type": "dare"
+            },
+            {
+                "id": 39,
+                "type": "dare"
+            },
+            {
+                "id": 99,
+                "type": "dare"
+            },
+            {
+                "id": 37,
+                "type": "dare"
+            },
+            {
+                "id": 81,
+                "type": "truth"
+            },
+            {
+                "id": 59,
+                "type": "dare"
+            },
+            {
+                "id": 46,
+                "type": "truth"
+            },
+            {
+                "id": 58,
+                "type": "dare"
+            },
+            {
+                "id": 56,
+                "type": "dare"
+            },
+            {
+                "id": 43,
+                "type": "truth"
+            }
+        ],
+        "current_type": "dare"
     }
 }

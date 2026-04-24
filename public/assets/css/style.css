@@ -1503,3 +1503,70 @@ button {
         padding: 0 12px 40px;
     }
 }
+
+/* ── WIZARD SPECIALS ── */
+.role-cards {
+    display: flex;
+    gap: 12px;
+}
+
+.role-card {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.role-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(201, 169, 255, 0.3);
+}
+
+.role-card.active {
+    background: linear-gradient(135deg, rgba(201, 169, 255, 0.15), rgba(255, 143, 171, 0.1));
+    border-color: var(--primary);
+    box-shadow: 0 8px 24px rgba(201, 169, 255, 0.12);
+    transform: translateY(-2px) scale(1.02);
+}
+
+.quick-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tag-opt {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-2);
+}
+
+.tag-opt:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.tag-opt.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #000;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(201, 169, 255, 0.3);
+}
+
+.wizard-step {
+    animation: fadeInRight 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes fadeInRight {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}

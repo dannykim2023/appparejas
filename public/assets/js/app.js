@@ -1,5 +1,15 @@
 const API_URL = '/api';
 
+// Global error handler
+window.onerror = function(msg, url, line, col, error) {
+    console.error('Global Error:', msg, 'line:', line);
+    return false;
+};
+
+window.addEventListener('unhandledrejection', function(e) {
+    console.error('Unhandled Promise Rejection:', e.reason);
+});
+
 // Utilities
 function showNotification(msg, type = 'success', isHtml = false) {
     const wrapper = document.getElementById('notification-wrapper');
@@ -31,7 +41,12 @@ function showNotification(msg, type = 'success', isHtml = false) {
 }
 
 // Global State
-let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+let currentUser = null;
+try {
+    currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+} catch (e) {
+    localStorage.removeItem('currentUser');
+}
 let currentPartner = null;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -57,6 +72,12 @@ async function checkServerSession() {
             if (gameStatus && gameStatus.waiting && String(gameStatus.waiting_by) !== String(currentUser.id)) {
                 handleGameInvite(gameStatus, gameType);
             }
+        } else {
+            try { await fetch(`${API_URL}/logout`, { method: 'POST' }); } catch(err){}
+            document.cookie = 'user_id=; Max-Age=-99999999; path=/';
+            document.cookie = 'user_name=; Max-Age=-99999999; path=/';
+            localStorage.removeItem('currentUser');
+            window.location.href = '/login';
         }
     } catch(e) { }
 }
@@ -164,18 +185,48 @@ function updateUIProfile() {
     }
 
     // Role-based visibility
-    if (currentUser.gender === 'H') {
-        const cycleSettings = document.getElementById('cycle-settings-box');
-        if(cycleSettings) cycleSettings.style.display = 'none';
+    const cycleSettings = document.getElementById('cycle-settings-box');
+    if (cycleSettings) {
+        cycleSettings.style.display = currentUser.gender === 'H' ? 'none' : 'block';
     }
 }
 
 async function initApp() {
+    console.log('initApp called, path:', window.location.pathname);
     const isLoginScreen = window.location.pathname.includes('login');
     
+    // Recuperación de sesión si el localStorage se perdió pero la cookie existe
+    if (!currentUser) {
+        const cookies = document.cookie.split('; ');
+        const userIdCookie = cookies.find(row => row.startsWith('user_id='));
+        if (userIdCookie) {
+            const userId = userIdCookie.split('=')[1];
+            try {
+                const res = await fetch(`${API_URL}/me?user_id=${userId}`);
+                const body = await res.json();
+                if (body.success) {
+                    currentUser = body.data.user;
+                    currentPartner = body.data.partner;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                } else {
+                    try { await fetch(`${API_URL}/logout`, { method: 'POST' }); } catch(err){}
+                    document.cookie = 'user_id=; Max-Age=-99999999; path=/';
+                    document.cookie = 'user_name=; Max-Age=-99999999; path=/';
+                    localStorage.removeItem('currentUser');
+                }
+            } catch (e) {
+                console.error("Error recuperando sesión:", e);
+                try { await fetch(`${API_URL}/logout`, { method: 'POST' }); } catch(err){}
+                document.cookie = 'user_id=; Max-Age=-99999999; path=/';
+                document.cookie = 'user_name=; Max-Age=-99999999; path=/';
+                localStorage.removeItem('currentUser');
+            }
+        }
+    }
+
     if (currentUser) {
         if (isLoginScreen) {
-            window.location.href = 'index.html';
+            window.location.href = '/';
             return;
         }
 
@@ -206,7 +257,7 @@ async function initApp() {
         setInterval(checkServerSession, 5000);
     } else {
         if (!isLoginScreen) {
-            window.location.href = 'login.html';
+            window.location.href = '/login';
             return;
         }
         
@@ -242,7 +293,136 @@ window.toggleTag = function(element) {
     }
 };
 
+window.validateEmailAndNext = async function(btn, targetStep) {
+    const emailInput = document.getElementById('user-email');
+    if (!emailInput) return nextStep(btn, targetStep); // Fallback por si no es el paso 2
+
+    const email = emailInput.value.trim();
+    if (!email) {
+        showNotification('Por favor, ingresa tu correo.', 'error');
+        return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        showNotification('El formato del correo es inválido.', 'error');
+        return;
+    }
+
+    // Disable button to prevent spam
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i data-lucide="loader" class="inline w-4 h-4 mr-1 align-middle animate-spin"></i> Validando...';
+    btn.disabled = true;
+
+    try {
+        const res = await fetch(`${API_URL}/check-email`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        const body = await res.json();
+        
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        
+        if (body.success) {
+            // El correo está libre, podemos avanzar
+            if(window.lucide) window.lucide.createIcons();
+            nextStep(btn, targetStep);
+        } else {
+            // El correo ya existe
+            showNotification(body.error || 'Este correo ya está registrado.', 'error');
+        }
+    } catch(e) {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        showNotification('Error de conexión al verificar el correo.', 'error');
+    }
+};
+
+window.performRegistration = async () => {
+    const name = document.getElementById('user-name').value.trim();
+    const email = document.getElementById('user-email').value.trim();
+    const password = document.getElementById('user-password').value;
+    const gender = document.getElementById('user-gender').value;
+    const birth = document.getElementById('user-birth').value;
+    const gift = document.getElementById('user-gift').value.trim();
+    const partnerCode = document.getElementById('partner-code-onboarding')?.value.trim();
+    
+    // Validaciones finales
+    if (!name || !email || !password) return showNotification('Faltan datos básicos', 'error');
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) return showNotification('El formato del correo es inválido', 'error');
+    
+    if (!gender || !birth) return showNotification('Por favor completa tu rol y fecha de nacimiento', 'error');
+    if (!gift) return showNotification('Dinos qué te gusta para continuar ✨', 'error');
+    
+    try {
+        // 1. Register User
+        const res = await fetch(`${API_URL}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                name, 
+                email,
+                password,
+                gender, 
+                birth, 
+                preferences: { gustos: gift } 
+            })
+        });
+        const body = await res.json();
+        
+        if (body.success) {
+            currentUser = body.data;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            // Also set cookie for PHP session
+            document.cookie = `user_id=${currentUser.id}; path=/; max-age=${86400*30}; path=/`;
+            document.cookie = `user_name=${encodeURIComponent(currentUser.name)}; path=/; max-age=${86400*30}; path=/`;
+            
+            // 2. Connect if code provided
+            let linkedStr = "";
+            if (partnerCode && partnerCode.length === 6) {
+                try {
+                    const resSync = await fetch(`${API_URL}/connect-partner`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id: currentUser.id, partner_code: partnerCode })
+                    });
+                    const syncBody = await resSync.json();
+                    if(!syncBody.success) {
+                        alert("Cuenta creada, pero el código de pareja era inválido. Podrás vincularlo luego dentro de la App.");
+                    } else {
+                        linkedStr = syncBody.data ? syncBody.data.name : "tu pareja";
+                    }
+                } catch(e) {}
+            }
+            
+            // Redirigir al inicio pasando variables con sessionStorage
+            if (linkedStr) {
+                sessionStorage.setItem('welcome_msg', `¡Felicidades! Te vinculaste a ${linkedStr} 🎉`);
+            } else {
+                sessionStorage.setItem('welcome_msg', `¡Bienvenido/a ${currentUser.name}! 🎉`);
+            }
+            
+            window.location.href = '/';
+        } else {
+            showNotification(body.error || 'Error', 'error');
+        }
+    } catch (e) {
+        showNotification('Error de conexión', 'error');
+    }
+};
+
 function setupEvents() {
+    console.log('Setting up events...');
+    
+    // Debug: Verify wizard elements exist
+    console.log('Wizard buttons found:', document.querySelectorAll('.btn-next-step').length);
+    console.log('Wizard steps found:', document.querySelectorAll('.wizard-step').length);
+    
     // Tabs Navigation
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -258,120 +438,10 @@ function setupEvents() {
         });
     });
 
-    // Auth - UI Wizard Step Navigation
-    document.querySelectorAll('.btn-next-step').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const currentStep = e.target.closest('.wizard-step').id;
-            
-            // Validations
-            if(currentStep === 'step-1') {
-                const name = document.getElementById('user-name').value.trim();
-                if (!name) {
-                    showNotification('Por favor dinos tu nombre', 'error');
-                    return;
-                }
-            } else if (currentStep === 'step-2') {
-                const email = document.getElementById('user-email').value.trim();
-                const pass = document.getElementById('user-password').value;
-                if (!email || !pass) {
-                    showNotification('Por favor completa email y contraseña', 'error');
-                    return;
-                }
-                if (pass.length < 6) {
-                    showNotification('La contraseña debe tener al menos 6 caracteres', 'error');
-                    return;
-                }
-            } else if (currentStep === 'step-3') {
-                const gender = document.getElementById('user-gender').value;
-                if (!gender) {
-                    showNotification('Selecciona si eres Mujer u Hombre para continuar', 'error');
-                    return;
-                }
-            }
-
-            const target = btn.dataset.target;
-            document.querySelectorAll('.wizard-step').forEach(s => s.style.display = 'none');
-            document.getElementById(target).style.display = 'block';
-        });
-    });
-    
-    document.querySelectorAll('.btn-prev-step').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const target = btn.dataset.target;
-            document.querySelectorAll('.wizard-step').forEach(s => s.style.display = 'none');
-            document.getElementById(target).style.display = 'block';
-        });
-    });
-
-    // Auth - Register Action
-    const performRegistration = async () => {
-        const name = document.getElementById('user-name').value.trim();
-        const email = document.getElementById('user-email').value.trim();
-        const password = document.getElementById('user-password').value;
-        const gender = document.getElementById('user-gender').value;
-        const birth = document.getElementById('user-birth').value;
-        const gift = document.getElementById('user-gift').value.trim();
-        const partnerCode = document.getElementById('partner-code-onboarding')?.value.trim();
-        
-        if (!name || !email || !password) return showNotification('Faltan datos requeridos', 'error');
-        
-        try {
-            // 1. Register User
-            const res = await fetch(`${API_URL}/register`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    name, 
-                    email,
-                    password,
-                    gender, 
-                    birth, 
-                    preferences: { gustos: gift } 
-                })
-            });
-            const body = await res.json();
-            
-            if (body.success) {
-                currentUser = body.data;
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
-                // 2. Connect if code provided
-                let linkedStr = "";
-                if (partnerCode && partnerCode.length === 6) {
-                    try {
-                        const resSync = await fetch(`${API_URL}/connect-partner`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ user_id: currentUser.id, partner_code: partnerCode })
-                        });
-                        const syncBody = await resSync.json();
-                        if(!syncBody.success) {
-                            alert("Cuenta creada, pero el código de pareja era inválido. Podrás vincularlo luego dentro de la App.");
-                        } else {
-                            linkedStr = syncBody.data ? syncBody.data.name : "tu pareja";
-                        }
-                    } catch(e) {}
-                }
-                
-                // Redirigir al inicio pasando variables con sessionStorage
-                if (linkedStr) {
-                    sessionStorage.setItem('welcome_msg', `¡Felicidades! Te vinculaste a ${linkedStr} 🎉`);
-                } else {
-                    sessionStorage.setItem('welcome_msg', `¡Bienvenido/a ${currentUser.name}! 🎉`);
-                }
-                
-                window.location.href = 'index.html';
-            } else {
-                showNotification(body.error || 'Error', 'error');
-            }
-        } catch (e) {
-            showNotification('Error de conexión', 'error');
-        }
-    };
-
+    // El registro y la navegación ahora se manejan globalmente o por HTML onclick
     const btnRegister = document.getElementById('btn-register');
     if(btnRegister) {
-        btnRegister.addEventListener('click', performRegistration);
+        btnRegister.addEventListener('click', window.performRegistration);
     }
 
     // Login Action
@@ -383,6 +453,9 @@ function setupEvents() {
             
             if(!email || !password) return showNotification('Ingresa email y contraseña', 'error');
             
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) return showNotification('El formato del correo es inválido', 'error');
+            
             try {
                 const res = await fetch(`${API_URL}/login`, {
                     method: 'POST',
@@ -390,25 +463,21 @@ function setupEvents() {
                     body: JSON.stringify({ email, password })
                 });
                 const body = await res.json();
-                if(body.success) {
-                    currentUser = body.data;
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    sessionStorage.setItem('welcome_msg', `¡Hola de nuevo, ${currentUser.name}! ✨`);
-                    window.location.href = 'index.html';
+                if (body.success) {
+                    showNotification('¡Bienvenido de nuevo!');
+                    localStorage.setItem('currentUser', JSON.stringify(body.data.user));
+                    
+                    // Backup cookie explícita
+                    document.cookie = `user_id=${body.data.user.id}; max-age=2592000; path=/`;
+                    document.cookie = `user_name=${body.data.user.name}; max-age=2592000; path=/`;
+                    
+                    setTimeout(() => window.location.href = '/', 600);
                 } else {
                     showNotification(body.error || 'Credenciales incorrectas', 'error');
                 }
             } catch(e) {
                 showNotification('Error al conectar con el servidor', 'error');
             }
-        });
-    }
-    
-    const btnSkip = document.getElementById('btn-skip-code');
-    if(btnSkip) {
-        btnSkip.addEventListener('click', () => {
-            document.getElementById('partner-code-onboarding').value = '';
-            performRegistration();
         });
     }
 
@@ -519,9 +588,12 @@ function setupEvents() {
     // Logout
     const btnLogout = document.getElementById('btn-logout');
     if(btnLogout) {
-        btnLogout.addEventListener('click', () => {
+        btnLogout.addEventListener('click', async () => {
+            try {
+                await fetch(`${API_URL}/logout`, { method: 'POST' });
+            } catch(e) {}
             localStorage.removeItem('currentUser');
-            window.location.href = 'login.html';
+            window.location.href = '/login';
         });
     }
 }

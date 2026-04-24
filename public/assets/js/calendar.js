@@ -120,9 +120,11 @@ window.calendarObj = {
                     modal.classList.remove('active');
                     extraInputs.style.display = 'none';
                     if (selectedType === 'period') {
+                        if (currentUser.gender === 'H') {
+                            return showNotification('Solo la mujer puede registrar la menstruación.', 'error');
+                        }
                         await this.togglePeriod(selectedDate);
                     } else {
-                        showNotification(`Registrando Intimidad ❤️...`);
                         await this.saveEvent(selectedDate, selectedType, '');
                     }
                     return;
@@ -141,10 +143,14 @@ window.calendarObj = {
 
         btnSaveEvent.addEventListener('click', async () => {
              if(!selectedType) return showNotification('Selecciona un tipo', 'error');
+             
+             btnSaveEvent.disabled = true;
              const val = document.getElementById('event-value').value;
              modal.classList.remove('active');
              extraInputs.style.display = 'none';
+             
              await this.saveEvent(selectedDate, selectedType, val);
+             btnSaveEvent.disabled = false;
         });
 
         // 🔥 Lógica de Doble Interacción: Short Tap (Toggle Periodo) y Long Press (Modal otros eventos)

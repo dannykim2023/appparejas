@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" style="background: #060608; color: #fff;">
 
 <head>
     <meta charset="UTF-8">
@@ -10,6 +10,9 @@
 
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/public/assets/css/style.css">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,6 +27,14 @@
     <!-- Confetti Library -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
+    <!-- Fast Redirect if not logged in -->
+    <script>
+        // Ensure dark background before anything loads
+        document.documentElement.style.setProperty('--bg-color', '#060608');
+    </script>
+    <script>
+        // Security check is now gracefully handled by app.js.
+    </script>
     <script>
         tailwind.config = {
             theme: {
@@ -947,7 +958,7 @@
     </div>
 
     <!-- Cosmos background -->
-    <script src="/assets/js/cosmos.js"></script>
+    <script src="/public/assets/js/cosmos.js"></script>
 
     <!-- Lucide icons -->
     <script>
@@ -956,12 +967,12 @@
     </script>
 
     <!-- Original app scripts (unchanged) -->
-    <script src="/assets/js/app.js"></script>
-    <script src="/assets/js/timeline.js"></script>
-    <script src="/assets/js/calendar.js"></script>
-    <script src="/assets/js/game-selector.js"></script>
-    <script src="/assets/js/game.js"></script>
-    <script src="/assets/js/dare.js"></script>
+    <script src="/public/assets/js/app.js"></script>
+    <script src="/public/assets/js/timeline.js"></script>
+    <script src="/public/assets/js/calendar.js"></script>
+    <script src="/public/assets/js/game-selector.js"></script>
+    <script src="/public/assets/js/game.js"></script>
+    <script src="/public/assets/js/dare.js"></script>
 </body>
 
 </html>
