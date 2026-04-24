@@ -1,0 +1,19 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Define la base. Si lo subes a una subcarpeta (ej. misitio.com/app/), cambia / por /app/
+    RewriteBase /
+
+    # Si el archivo o carpeta existe físicamente (ej. /public/assets/...), Apache lo sirve directo
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Si NO existe (ej. /login o /api/register), se manda todo al index.php
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>
+
+# Seguridad opcional: bloquear acceso directo a carpetas sensibles
+<DirectoryMatch "^(controllers|models|utils|data|config)/">
+    Order deny,allow
+    Deny from all
+</DirectoryMatch>

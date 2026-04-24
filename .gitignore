@@ -1,0 +1,9 @@
+# Credenciales
+.env
+
+# Archivos de SO
+.DS_Store
+Thumbs.db
+
+# SQLite local (si usaras)
+data/*.sqlite

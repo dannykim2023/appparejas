@@ -1,26 +1,35 @@
 <?php
+require_once __DIR__ . '/../utils/Env.php';
+
+// Cargar .env si existe en la raíz
+Env::load(__DIR__ . '/../.env');
 
 class Database {
     private static $connection = null;
     
-    // Configura aquí tus credenciales de MySQL si es necesario
-    private static $host = '127.0.0.1';
-    private static $db_name = 'appParejas_db';
-    private static $username = 'root';
-    private static $password = ''; // Por defecto asumo sin clave en entorno local
-
     public static function getConnection() {
         if (self::$connection === null) {
+            
+            // Leer desde .env o variables de entorno del servidor (cPanel/Hostinger)
+            $host = $_ENV['DB_HOST'] ?? $_SERVER['DB_HOST'] ?? '127.0.0.1';
+            $db_name = $_ENV['DB_NAME'] ?? $_SERVER['DB_NAME'] ?? 'appParejas_db';
+            $username = $_ENV['DB_USER'] ?? $_SERVER['DB_USER'] ?? 'root';
+            $password = $_ENV['DB_PASS'] ?? $_SERVER['DB_PASS'] ?? '';
             try {
                 self::$connection = new PDO(
-                    "mysql:host=" . self::$host . ";dbname=" . self::$db_name . ";charset=utf8",
-                    self::$username,
-                    self::$password
+                    "mysql:host=" . $host . ";dbname=" . $db_name . ";charset=utf8",
+                    $username,
+                    $password
                 );
                 self::$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 self::$connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
             } catch(PDOException $exception) {
-                echo "Error de conexión: " . $exception->getMessage();
+                http_response_code(500);
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Fallo al conectar a la Base de Datos. Revisa config/database.php. Detalle: ' . $exception->getMessage()
+                ]);
                 exit;
             }
         }
